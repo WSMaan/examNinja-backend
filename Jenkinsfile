@@ -14,10 +14,10 @@ pipeline {
                 sh 'mvn test'
             }
         }
-//         stage('Deploy') {
-//             steps {
-//                 sh 'mvn deploy'
-//             }
-//    //     }
+    }
+    post {
+        success {
+            build job: 'testing_examninja', wait: true
+        }
     }
 }
