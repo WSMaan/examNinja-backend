@@ -18,6 +18,6 @@ pipeline {
     post {
         success {
             build job: 'testing_examninja', wait: true
-        }
+        }//
     }
 }
