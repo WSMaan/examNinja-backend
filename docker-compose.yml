@@ -1,0 +1,9 @@
+version: '3'
+services:
+  backend:
+    image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/exam_ninja_ecr:backend_latest
+    ports:
+      - "8085:8080"  # Maps port 8085 on your host to port 8080 in the container
+    environment:
+      - ENV_VAR=value
+    # Add other configuration if needed (e.g., volumes, networks)
