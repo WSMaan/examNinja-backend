@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.globalitgeeks</groupId>
 	<artifactId>examninja</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>ExamNinja</name>
 	<description>ExamNinja is a comprehensive online mock exam application designed to help users prepare effectively for their exams. Built with Java, Spring Boot, and MySQL, ExamNinja provides a seamless platform for students and administrators to interact with various exam-related features.</description>
 	<url/>
