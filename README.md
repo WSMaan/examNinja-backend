@@ -59,7 +59,7 @@ Before running the project, ensure the following should be installed:
 
 1. Clone the Repository
 
-https://github.com/IceBeastgit/ExamNinja.git
+https://github.com/WSMaan/examNinja-backend.git
 
 -Open IntelliJ IDEA.
 
@@ -87,11 +87,11 @@ spring.profiles.active=local
 Running application remotely -
 spring.profiles.active=test
 
-spring.datasource.url=jdbc:mysql://localhost:3306/exam_ninja
+spring.datasource.url=jdbc:mysql://mysql-container:3306/exam
+spring.datasource.username=root
+spring.datasource.password=root@123
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-spring.datasource.username=<username-to-be-inserted>
-
-spring.datasource.password=<password-to-be-inserted>
 
 -Make sure that the MySQL server is running, and the database exam_ninja is created. You have to create the database manually using MySQL Workbench or command line:
 
@@ -118,11 +118,11 @@ IntelliJ will start the application, and you should see the Spring Boot banner i
 
 -Once the application starts, you can access it in your browser:
 
-http://localhost:8080
+http://localhost:8081
 
 -Swagger API Docs: 
 
-http://localhost:8080/swagger-ui/index.html
+http://localhost:8081/swagger-ui/index.html
 
 
 7. Run the Tests
