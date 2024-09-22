@@ -8,7 +8,7 @@ WORKDIR /app
 COPY target/examninja-0.0.1.jar examninja.jar
 
 # Step 4: Expose the port the application will run on
-EXPOSE 8080
+EXPOSE 8081
 
 # Step 5: Specify the command to run the application
 ENTRYPOINT ["java", "-jar", "examninja.jar"]
