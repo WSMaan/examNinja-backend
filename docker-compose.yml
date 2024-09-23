@@ -7,7 +7,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root@123
       MYSQL_DATABASE: exam
-
     ports:
       - "9308:3306"
     networks:
@@ -18,17 +17,25 @@ services:
       timeout: 10s
       retries: 5
 
-  examninja:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: examninja-container
+  examninja-backend:
+    image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:backend_latest
+    container_name: examninja-backend-container
     ports:
       - "8081:8081"
     depends_on:
       mysql:
         condition: service_healthy
+    networks:
+      - app-network
 
+  examninja-frontend:
+    image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:frontend_latest
+    container_name: examninja-frontend-container
+    ports:
+      - "3000:3000"
+    depends_on:
+      examninja-backend:
+        condition: service_started
     networks:
       - app-network
 
