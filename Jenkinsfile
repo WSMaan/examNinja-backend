@@ -4,7 +4,7 @@ pipeline {
         AWS_ACCOUNT_ID = "583187964056"
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/examninja"
+        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECR_CREDENTIALS = 'aws_key'
     }
     stages {
@@ -24,8 +24,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Building the Docker image for the backend
-                    sh 'docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME .'
+                    // Build the Docker image for the backend
+                    sh 'docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:backend_latest .'
                 }
             }
         }
@@ -36,7 +36,7 @@ pipeline {
                     sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY"
 
                     // Push the Docker image to ECR
-                    sh "docker push $ECR_REGISTRY/$ECR_REPOSITORY_NAME"
+                    sh "docker push $ECR_REGISTRY/$ECR_REPOSITORY_NAME:backend_latest"
                 }
             }
         }
