@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Clone Backend Repository') {
             steps {
-                git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'git_hub'
+                git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
             }
         }
         stage('Print Environment') {
