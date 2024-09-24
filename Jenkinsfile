@@ -1,9 +1,11 @@
 pipeline {
     agent any
     environment {
-        REGISTRY = "your-docker-registry-url"
-        REGISTRY_CREDENTIALS = 'docker-hub-credentials-id'
-        IMAGE_NAME = "backend-app"
+        AWS_ACCOUNT_ID = "583187964056"
+        AWS_REGION = "us-east-2"
+        ECR_REPOSITORY_NAME = "examninja"
+        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/examninja"
+        ECR_CREDENTIALS = 'aws_key'
     }
     stages {
         stage('Clone Backend Repository') {
@@ -23,16 +25,18 @@ pipeline {
             steps {
                 script {
                     // Building the Docker image for the backend
-                    sh 'docker build -t $REGISTRY/$IMAGE_NAME .'
+                    sh 'docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME .'
                 }
             }
         }
-        stage('Push Docker Image') {
+        stage('Push Docker Image to ECR') {
             steps {
                 script {
-                    docker.withRegistry('', "$REGISTRY_CREDENTIALS") {
-                        sh "docker push $REGISTRY/$IMAGE_NAME"
-                    }
+                    // Authenticate with AWS ECR
+                    sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY"
+
+                    // Push the Docker image to ECR
+                    sh "docker push $ECR_REGISTRY/$ECR_REPOSITORY_NAME"
                 }
             }
         }
