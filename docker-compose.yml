@@ -12,16 +12,16 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot@123" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot@123"]
       interval: 30s
       timeout: 10s
       retries: 5
 
   examninja-backend:
-    image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:backend_latest
+    image: ${ECR_REGISTRY}/examninja:backend_latest
     container_name: examninja-backend-container
     ports:
-      - "8085:8080"  # Backend service mapped to port 8081
+      - "8085:8080"  # Backend service mapped to port 8085
     depends_on:
       mysql:
         condition: service_healthy
@@ -29,10 +29,10 @@ services:
       - app-network
 
   examninja-frontend:
-    image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:frontend_latest
+    image: ${ECR_REGISTRY}/examninja:frontend_latest
     container_name: examninja-frontend-container
     ports:
-      - "3001:3000"  # Frontend service mapped to port 3001
+      - "3000:3000"  # Frontend service mapped to port 3001
     depends_on:
       examninja-backend:
         condition: service_started
