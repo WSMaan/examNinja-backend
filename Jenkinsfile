@@ -6,8 +6,6 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECR_CREDENTIALS = 'aws_key'
-        MAVEN_HOME = '/usr/bin/mvn' // Set your Maven installation path
-        PATH = "${MAVEN_HOME}:${env.PATH}"
     }
     stages {
         stage('Clone Backend Repository') {
