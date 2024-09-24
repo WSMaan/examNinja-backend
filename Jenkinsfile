@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Backend Repository') {
             steps {
-                git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git'
+                git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'git_hub'
             }
         }
         stage('Build Backend App') {
