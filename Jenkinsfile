@@ -32,9 +32,12 @@ pipeline {
         stage('Push Docker Image to ECR') {
             steps {
                 script {
-                    // Authenticate with AWS ECR
-                    sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY"
-
+                    // Authenticate with AWS ECR using the non-interactive login
+                    sh """
+                        aws ecr get-login-password --region $AWS_REGION | \
+                        docker login --username AWS --password-stdin $ECR_REGISTRY
+                    """
+                    
                     // Push the Docker image to ECR
                     sh "docker push $ECR_REGISTRY/$ECR_REPOSITORY_NAME:backend_latest"
                 }
