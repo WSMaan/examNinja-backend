@@ -5,7 +5,8 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        ECR_CREDENTIALS = 'aws_key'
+        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMLX2AHZDE' // Replace with your AWS access key
+        AWS_SECRET_ACCESS_KEY = 'Vx3vlenqcIQyAFMBwe4FbdSfRvqWYY42lb4Be/4a' // Replace with your AWS secret key
     }
     stages {
         stage('Clone Backend Repository') {
@@ -32,10 +33,11 @@ pipeline {
         stage('Push Docker Image to ECR') {
             steps {
                 script {
-                    // Authenticate with AWS ECR using the non-interactive login
+                    // Authenticate with AWS ECR using the credentials
                     sh """
-                        aws ecr get-login-password --region $AWS_REGION | \
-                        docker login --username AWS --password-stdin $ECR_REGISTRY
+                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
                     """
                     
                     // Push the Docker image to ECR
