@@ -1,16 +1,24 @@
 pipeline {
     agent any
+
     environment {
-        REGISTRY = "your-docker-registry-url"
-        REGISTRY_CREDENTIALS = 'docker-hub-credentials-id'
-        IMAGE_NAME = "backend-app"
+        AWS_ACCOUNT_ID = '583187964056'
+        AWS_REGION = 'us-east-2'
+        ECR_REPOSITORY_URI = '583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja'  // Added ECR repository URI
+        IMAGE_TAG = "backend_latest"  // Updated image tag for backend
+        REPO_URL = "${ECR_REPOSITORY_URI}:${IMAGE_TAG}"
+        GIT_REPO_URL = 'https://github.com/WSMaan/examNinja-backend.git'
+        REGISTRY_CREDENTIALS = 'aws-ecr-credentials-id'
     }
+
     stages {
         stage('Clone Backend Repository') {
             steps {
-                git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git'
+                // Clone the backend repository
+                git branch: 'master', url: GIT_REPO_URL
             }
         }
+
         stage('Build Backend App') {
             steps {
                 script {
@@ -19,36 +27,35 @@ pipeline {
                 }
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
                     // Building the Docker image for the backend
-                    sh 'docker build -t $REGISTRY/$IMAGE_NAME .'
+                    sh "docker build -t $REPO_URL ."
                 }
             }
         }
-        stage('Push Docker Image') {
+
+        stage('Push Docker Image to ECR') {
             steps {
                 script {
-                    docker.withRegistry('', "$REGISTRY_CREDENTIALS") {
-                        sh "docker push $REGISTRY/$IMAGE_NAME"
+                    // Authenticate with AWS ECR and push the Docker image
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                        sh '''
+                            aws ecr get-login-password --region $AWS_REGION | \
+                            docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+                            docker push $REPO_URL
+                        '''
                     }
                 }
             }
         }
-        stage('Deploy to Docker') {
-            steps {
-                script {
-                    // Deploy using docker-compose
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
-                }
-            }
-        }
     }
+
     post {
         always {
-            cleanWs()
+            echo 'Pipeline completed.'
         }
     }
 }
