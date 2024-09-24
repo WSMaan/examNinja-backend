@@ -21,7 +21,7 @@ services:
     image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:backend_latest
     container_name: examninja-backend-container
     ports:
-      - "8081:8080"  # Backend service mapped to port 8081
+      - "8085:8080"  # Backend service mapped to port 8081
     depends_on:
       mysql:
         condition: service_healthy
