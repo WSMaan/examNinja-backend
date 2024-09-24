@@ -13,14 +13,6 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
             }
         }
-        stage('Print Environment') {
-            steps {
-                script {
-                    sh 'echo $PATH'
-                    sh 'mvn -version' // Test if Maven is recognized
-                }
-            }
-        }
         stage('Build Backend App') {
             steps {
                 script {
