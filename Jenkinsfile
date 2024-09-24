@@ -6,11 +6,21 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECR_CREDENTIALS = 'aws_key'
+        MAVEN_HOME = '/usr/bin/mvn' // Set your Maven installation path
+        PATH = "${MAVEN_HOME}:${env.PATH}"
     }
     stages {
         stage('Clone Backend Repository') {
             steps {
-                git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
+                git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'git_hub'
+            }
+        }
+        stage('Print Environment') {
+            steps {
+                script {
+                    sh 'echo $PATH'
+                    sh 'mvn -version' // Test if Maven is recognized
+                }
             }
         }
         stage('Build Backend App') {
