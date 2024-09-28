@@ -17,7 +17,7 @@
     <name>ExamNinja</name>
     <description>ExamNinja is a comprehensive online mock exam application designed to help users prepare effectively for their exams. Built with Java, Spring Boot, and MySQL, ExamNinja provides a seamless platform for students and administrators to interact with various exam-related features.</description>
     <url/>
-    
+
     <properties>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
@@ -103,20 +103,39 @@
             <artifactId>spring-boot-test-autoconfigure</artifactId>
             <scope>test</scope>
         </dependency>
-             <dependency>
-        <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-annotations</artifactId>
-        <version>2.1.0</version> <!-- Check for the latest version -->
-    </dependency>
-    <dependency>
-        <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-core</artifactId>
-        <version>2.1.0</version> <!-- Check for the latest version -->
-    </dependency>
-    <dependency>
-        <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-models</artifactId>
-        <version>2.1.0</version> <!-- Check for the latest version -->
-    </dependency>
+
+        <!-- Swagger dependencies -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.1.0</version> <!-- Check for the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+            <version>2.1.0</version> <!-- Check for the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-models</artifactId>
+            <version>2.1.0</version> <!-- Check for the latest version -->
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.globalitgeeks.examninja.ExamNinjaApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
