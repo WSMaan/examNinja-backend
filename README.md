@@ -1,4 +1,4 @@
-Exam Ninja: User Management - Backend Project.
+# Exam Ninja: User Management - Backend Project.
 
   This project is the backend RESTful service built using Spring Boot. It includes  Registration, Login and change password API.
 
