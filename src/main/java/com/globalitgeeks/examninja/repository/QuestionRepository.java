@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-
+    
 
     // Fetch questions associated with the given test id and handle pagination
     Page<Question> findByTestId(Long testId, Pageable pageable); // Updated to use testTable
