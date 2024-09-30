@@ -21,7 +21,7 @@ Installation
 
 **Features
 
-*User Management: Registration, login, password management.
+*User Management: Registration, login, password management//.
 
 *Global Exception Handling: Uses @RestControllerAdvice for handling exceptions.
 
