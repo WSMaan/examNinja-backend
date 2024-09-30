@@ -20,7 +20,6 @@ public class TestTable {
     private Long testId;
 
     private String testName;
-    private Integer numberOfQuestions;
 
     // Mapping with questions; ignored in JSON to prevent stack overflow
     @OneToMany(mappedBy = "testTable")
