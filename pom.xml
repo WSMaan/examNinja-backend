@@ -22,6 +22,11 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
+        <!-- SonarQube Properties -->
+        <sonar.projectKey>com.globalitgeeks:examninja</sonar.projectKey>
+        <sonar.host.url>http://your-sonarqube-server-url</sonar.host.url>
+        <sonar.login>your-sonar-token</sonar.login>
     </properties>
 
     <dependencies>
@@ -89,7 +94,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JUnit 5 (Jupiter) Engine j-->
+        <!-- JUnit 5 (Jupiter) Engine -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -108,17 +113,17 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.1.0</version> <!-- Check for the latest version -->
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-core</artifactId>
-            <version>2.1.0</version> <!-- Check for the latest version -->
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-models</artifactId>
-            <version>2.1.0</version> <!-- Check for the latest version -->
+            <version>2.1.0</version>
         </dependency>
     </dependencies>
 
@@ -137,6 +142,13 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <!-- SonarQube Maven Plugin -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
             </plugin>
         </plugins>
     </build>
