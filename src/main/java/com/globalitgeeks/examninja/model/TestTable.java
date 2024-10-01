@@ -21,8 +21,4 @@ public class TestTable {
 
     private String testName;
 
-    // Mapping with questions; ignored in JSON to prevent stack overflow
-    @OneToMany(mappedBy = "testTable")
-    @JsonIgnore
-    private List<Question> questions;
 }
