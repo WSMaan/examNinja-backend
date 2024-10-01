@@ -10,10 +10,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TestRepository extends JpaRepository<TestTable, Long> {
-    // Custom query methods can be added here if needed
-    // Custom query to reset auto-increment
-    @Modifying
-    @Transactional
-    @Query(value = "ALTER TABLE test AUTO_INCREMENT = 1", nativeQuery = true)
-    void resetAutoIncrement();
+
 }

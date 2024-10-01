@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class QuestionService {
 
@@ -21,12 +23,13 @@ public class QuestionService {
     private TestRepository testRepository;
 
     public Page<Question> getQuestionByTestId(Long testId, int page, int size) {
-        // Validate that the test exists
-        TestTable testTable = testRepository.findById(testId)
-                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
 
-        // Fetch one question per request based on the test
+       // Fetch one question per request based on the test id
         Pageable pageable = PageRequest.of(page, size);
-        return questionRepository.findByTestTable(testTable, pageable);
+        Page<Question> questions = questionRepository.findByTestId(testId, pageable);
+        if (questions.isEmpty()) {
+            throw new ResourceNotFoundException("No questions found for test with Test Id: " + testId);
+        }
+        return questions;
     }
 }
