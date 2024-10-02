@@ -26,4 +26,7 @@ public class Question {
 
     @Column(name = "test_id")
     private long testId;
+
+
+
 }
