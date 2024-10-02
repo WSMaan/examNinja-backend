@@ -8,13 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
-    // Fetch questions by level
-    List<Question> findByLevel(String level);
 
-    // Fetch questions associated with the given test and handle pagination
-    Page<Question> findByTestTable(TestTable testTable, Pageable pageable); // Updated to use testTable
+    // Fetch questions associated with the given test id and handle pagination
+    Page<Question> findByTestId(Long testId, Pageable pageable); // Updated to use testTable
+
 }

@@ -1,5 +1,6 @@
 package com.globalitgeeks.examninja.model;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,15 +18,12 @@ public class Question {
     private String option2;
     private String option3;
     private String option4;
-    private String option5;
     private String correctAnswer;
     private String answerDescription;
     private String category;
     private String level; // "Easy", "Medium", "Hard"
     private String questionType;
 
-    // Mapping the question to its respective test
-    @ManyToOne()
-    @JoinColumn(name = "test_id")
-    private TestTable testTable;
+    @Column(name = "test_id")
+    private long testId;
 }
