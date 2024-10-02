@@ -1,0 +1,17 @@
+ 
+# Ignore the .idea folder (for IntelliJ IDEA)
+.idea/
+
+# Optionally ignore other OS- and IDE-specific files (for best practices)
+*.iml
+*.log
+*.DS_Store
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ-specific
+*.ipr
+*.iws
+out/
