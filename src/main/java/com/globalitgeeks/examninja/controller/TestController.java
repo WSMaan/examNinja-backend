@@ -14,7 +14,7 @@ public class TestController {
     @Autowired
     private QuestionService questionService;
 
-    @GetMapping("/{testId}/questions")
+    @GetMapping ("/{testId}/questions")
     public ResponseEntity<Page<Question>> getQuestionByTestId(
             @PathVariable Long testId,
             @RequestParam(defaultValue = "0") int page) { // `size` is fixed to 1 since we fetch one question at a time
