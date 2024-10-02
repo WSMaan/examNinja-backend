@@ -19,4 +19,6 @@ public class AttemptTable {
     private Long testId;  // Foreign key from TestTable
     private Long userId;  // Foreign key from UserTable
 
+
+
 }
