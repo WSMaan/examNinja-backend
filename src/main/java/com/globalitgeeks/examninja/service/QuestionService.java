@@ -3,6 +3,7 @@ package com.globalitgeeks.examninja.service;
 import com.globalitgeeks.examninja.exception.PageOutOfBoundsException;
 import com.globalitgeeks.examninja.exception.ResourceNotFoundException;
 import com.globalitgeeks.examninja.model.Question;
+import com.globalitgeeks.examninja.model.TestTable;
 import com.globalitgeeks.examninja.repository.QuestionRepository;
 import com.globalitgeeks.examninja.repository.TestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
