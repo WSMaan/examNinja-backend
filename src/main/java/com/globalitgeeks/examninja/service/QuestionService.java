@@ -1,5 +1,6 @@
 package com.globalitgeeks.examninja.service;
 
+import com.globalitgeeks.examninja.exception.PageOutOfBoundsException;
 import com.globalitgeeks.examninja.exception.ResourceNotFoundException;
 import com.globalitgeeks.examninja.model.Question;
 import com.globalitgeeks.examninja.repository.QuestionRepository;
@@ -21,7 +22,7 @@ public class QuestionService {
 
     public Page<Question> getQuestionByTestId(Long testId, int page, int size) {
 
-       // Fetch one question per request based on the test id
+        // Fetch one question per request based on the test id
         Pageable pageable = PageRequest.of(page, size);
         Page<Question> questions = questionRepository.findByTestId(testId, pageable);
         if (questions.isEmpty() && page == 0) {
@@ -29,7 +30,7 @@ public class QuestionService {
             throw new ResourceNotFoundException("No questions found for test with Test Id: " + testId);
         } else if (page > questions.getTotalPages() - 1) {
             // If the page number requested exceeds the available pages
-            throw new IllegalArgumentException("Requested page is out of bounds. Maximum page number: " + (questions.getTotalPages() - 1));
+            throw new PageOutOfBoundsException("Requested page is out of bounds. Maximum page number: " + (questions.getTotalPages() - 1));
         }
         return questions;
     }
