@@ -2,11 +2,15 @@ package com.globalitgeeks.examninja.model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "questions")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Question {
 
     @Id

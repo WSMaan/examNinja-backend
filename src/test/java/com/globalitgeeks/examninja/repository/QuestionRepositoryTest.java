@@ -13,69 +13,53 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class QuestionRepositoryTest {
+class QuestionRepositoryTest {
 
     @Mock
     private QuestionRepository questionRepository;
 
-    @InjectMocks
-    private TestTable testTable;
-
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        testTable = new TestTable();
-        testTable.setTestId(1L);
     }
 
     @Test
-    public void testFindByTest() {
+    void testFindByTestId_ShouldReturnPaginatedQuestions_WhenTestIdExists() {
         // Arrange
-        Question question = new Question();
-        question.setQuestionId(1L);
+        Long testId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);  // First page with 10 questions
+        List<Question> questions = Arrays.asList(
+                new Question(1L, "Question 1", "A", "B", "C", "D", "E", "A", "Description", "Category", "Easy", 1),
+                new Question(2L, "Question 2", "A", "B", "C", "D", "E", "B", "Description", "Category", "Easy", 2)
+        );
+        Page<Question> pagedQuestions = new PageImpl<>(questions, pageable, questions.size());
+        when(questionRepository.findByTestId(testId, pageable)).thenReturn(pagedQuestions);
+
+        // Act
+        Page<Question> result = questionRepository.findByTestId(testId, pageable);
+
+        // Assert
+        assertEquals(2, result.getContent().size());
+        assertEquals("Question 1", result.getContent().get(0).getQuestion());
+        assertEquals(testId, result.getContent().get(0).getTestId());
+    }
+
+    @Test
+    void testFindByTestId_ShouldReturnEmptyPage_WhenTestIdDoesNotExist() {
+        // Arrange
+        Long testId = 999L;
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Question> page = new PageImpl<>(Collections.singletonList(question));
-
-        // Mock the behavior of findByTest
-        when(questionRepository.findByTestTable(testTable, pageable)).thenReturn(page);
+        when(questionRepository.findByTestId(testId, pageable)).thenReturn(Page.empty());
 
         // Act
-        Page<Question> result = questionRepository.findByTestTable(testTable, pageable);
+        Page<Question> result = questionRepository.findByTestId(testId, pageable);
 
         // Assert
-        assertEquals(1, result.getTotalElements());
-        assertEquals(1L, result.getContent().get(0).getQuestionId());
-    }
-
-    @Test
-    public void testFindByLevel() {
-        // Arrange
-        Question question1 = new Question();
-        question1.setQuestionId(1L);
-        question1.setLevel("Easy");
-
-        Question question2 = new Question();
-        question2.setQuestionId(2L);
-        question2.setLevel("Easy");
-
-        List<Question> questionList = Arrays.asList(question1, question2);
-
-        // Mock the behavior of findByLevel
-        when(questionRepository.findByLevel("Easy")).thenReturn(questionList);
-
-        // Act
-        List<Question> result = questionRepository.findByLevel("Easy");
-
-        // Assert
-        assertEquals(2, result.size());
-        assertEquals("Easy", result.get(0).getLevel());
-        assertEquals("Easy", result.get(1).getLevel());
+        assertEquals(0, result.getContent().size());
     }
 }
-
