@@ -56,6 +56,16 @@ pipeline {
         }
     }
     post {
+        success {
+            script {
+                echo "Backend build succeeded. Triggering RestAssured test job."
+                // Trigger the RestAssured test pipeline (downstream)
+                build job: 'RestAssuredTestJob', wait: false // Replace with your actual RestAssured test job name
+            }
+        }
+        failure {
+            echo "Backend build failed. RestAssured tests will not be triggered."
+        }
         always {
             cleanWs()
         }
