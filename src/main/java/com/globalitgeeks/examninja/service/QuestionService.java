@@ -19,13 +19,15 @@ public class QuestionService {
 
     @Autowired
     private TestRepository testRepository;
+    private static final int FIRST_PAGE = 0;
 
     public Page<Question> getQuestionByTestId(Long testId, int page, int size) {
 
         // Fetch one question per request based on the test id
         Pageable pageable = PageRequest.of(page, size);
         Page<Question> questions = questionRepository.findByTestId(testId, pageable);
-        if (questions.isEmpty() && page == 0) {
+
+        if (questions.isEmpty() && page == FIRST_PAGE) {
             // If there are no questions at all, and it's the first page
             throw new ResourceNotFoundException("No questions found for test with Test Id: " + testId);
         } else if (page > questions.getTotalPages() - 1) {
