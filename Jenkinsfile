@@ -7,6 +7,8 @@ pipeline {
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMFUDEPHEI' // Replace with your AWS access key
         AWS_SECRET_ACCESS_KEY = 'P5HvKjEb5yjDBx+zI/3P7eb25TspKNFD9WIqTitV' // Replace with your AWS secret key
+        BACKEND_DIR = 'backend'
+        FAILURE_REASON = ''
     }
     stages {
         stage('Clone Backend Repository') {
@@ -51,6 +53,16 @@ pipeline {
                     // Deploy using docker-compose
                     sh 'docker-compose down'
                     sh 'docker-compose up -d'
+                }
+            }
+        }
+        stage('Deploy to EKS') {
+            steps {
+                // Ensure kubectl is configured for your EKS cluster
+                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'my-cluster' to your cluster name
+                // Apply Kubernetes deployment files
+                dir(BACKEND_DIR) {
+                    sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
                 }
             }
         }
