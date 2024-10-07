@@ -50,19 +50,33 @@ pipeline {
         stage('Deploy to Docker') {
             steps {
                 script {
-                    // Deploy using docker-compose
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    // Check if the Docker image was successfully pushed
+                    def imageExists = sh(script: "docker images -q $ECR_REGISTRY/$ECR_REPOSITORY_NAME:backend_latest", returnStdout: true).trim()
+                    if (imageExists) {
+                        // Deploy using docker-compose
+                        sh 'docker-compose down'
+                        sh 'docker-compose up -d'
+                    } else {
+                        error("Docker image not found: $ECR_REGISTRY/$ECR_REPOSITORY_NAME:backend_latest")
+                    }
                 }
             }
         }
         stage('Deploy to EKS') {
             steps {
-                // Ensure kubectl is configured for your EKS cluster
-                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'my-cluster' to your cluster name
-                // Apply Kubernetes deployment files
-                dir(BACKEND_DIR) {
-                    sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
+                script {
+                    // Ensure kubectl is configured for your EKS cluster
+                    sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'examNinja' to your cluster name
+                    // Check if the Docker image was successfully pushed
+                    def imageExists = sh(script: "docker images -q $ECR_REGISTRY/$ECR_REPOSITORY_NAME:backend_latest", returnStdout: true).trim()
+                    if (imageExists) {
+                        // Apply Kubernetes deployment files
+                        dir(BACKEND_DIR) {
+                            sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
+                        }
+                    } else {
+                        error("Docker image not found: $ECR_REGISTRY/$ECR_REPOSITORY_NAME:backend_latest")
+                    }
                 }
             }
         }
