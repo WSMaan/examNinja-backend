@@ -5,8 +5,8 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMLX2AHZDE' // Replace with your AWS access key
-        AWS_SECRET_ACCESS_KEY = 'Vx3vlenqcIQyAFMBwe4FbdSfRvqWYY42lb4Be/4a' // Replace with your AWS secret key
+        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMFUDEPHEI' // Replace with your AWS access key
+        AWS_SECRET_ACCESS_KEY = 'P5HvKjEb5yjDBx+zI/3P7eb25TspKNFD9WIqTitV' // Replace with your AWS secret key
     }
     stages {
         stage('Clone Backend Repository') {
