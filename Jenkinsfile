@@ -8,7 +8,6 @@ pipeline {
         AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMFUDEPHEI'
         AWS_SECRET_ACCESS_KEY = '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'
         BACKEND_DIR = 'backend'
-      
         FAILURE_REASON = ''  // To capture failure reason
     }
     stages {
@@ -17,7 +16,6 @@ pipeline {
                 dir(BACKEND_DIR) {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
                 }
-                
             }
         }
 
@@ -36,14 +34,11 @@ pipeline {
             }
         }
 
-    
-
         stage('Build Docker Images') {
             steps {
                 dir(BACKEND_DIR) {
                     sh 'docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest .'
                 }
-            
             }
         }
 
@@ -51,7 +46,6 @@ pipeline {
             steps {
                 sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
                 sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest'
-            
             }
         }
 
@@ -63,7 +57,6 @@ pipeline {
                 dir(BACKEND_DIR) {
                     sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
                 }
-            
             }
         }
     }
@@ -75,9 +68,11 @@ pipeline {
         failure {
             script {
                 echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
+                slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.", token: credentials('slack-bot-token'))
             }
         }
         success {
+            slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!', token: credentials('slack-bot-token'))
             echo 'Pipeline succeeded!'
         }
     }
