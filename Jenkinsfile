@@ -42,23 +42,23 @@ pipeline {
             }
         }
 
-        stage('Push Docker Images to ECR') {
-            steps {
-                sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
-                sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest'
-            }
-        }
+        // stage('Push Docker Images to ECR') {
+        //     steps {
+        //         sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+        //         sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest'
+        //     }
+        // }
 
-        stage('Deploy to EKS') {
-            steps {
-                // Ensure kubectl is configured for your EKS cluster
-                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'my-cluster' to your cluster name
-                // Apply Kubernetes deployment files
-                dir(BACKEND_DIR) {
-                    sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
-                }
-            }
-        }
+        // stage('Deploy to EKS') {
+        //     steps {
+        //         // Ensure kubectl is configured for your EKS cluster
+        //         sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'my-cluster' to your cluster name
+        //         // Apply Kubernetes deployment files
+        //         dir(BACKEND_DIR) {
+        //             sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
+        //         }
+        //     }
+        // }
     }
 
     post {
