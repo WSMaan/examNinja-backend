@@ -62,4 +62,18 @@ class QuestionRepositoryTest {
         // Assert
         assertEquals(0, result.getContent().size());
     }
+    @Test
+    public void testCountByTestId() {
+        // Arrange: Mock the behavior of countByTestId
+        when(questionRepository.countByTestId(1L)).thenReturn(2L); // Mock test1 having 2 questions
+        when(questionRepository.countByTestId(2L)).thenReturn(1L); // Mock test2 having 1 question
+
+        // Act: Call the countByTestId method
+        Long countForTest1 = questionRepository.countByTestId(1L);
+        Long countForTest2 = questionRepository.countByTestId(2L);
+
+        // Assert: Verify the count is as expected
+        assertEquals(2L, countForTest1); // Test1 should have 2 questions
+        assertEquals(1L, countForTest2); // Test2 should have 1 question
+    }
 }
