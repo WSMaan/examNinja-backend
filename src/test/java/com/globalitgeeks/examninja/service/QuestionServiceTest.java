@@ -15,14 +15,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class QuestionServiceTest {
+
+    @InjectMocks
+    private QuestionService questionService;
 
     @Mock
     private QuestionRepository questionRepository;
@@ -30,85 +34,73 @@ class QuestionServiceTest {
     @Mock
     private TestRepository testRepository;
 
-    @InjectMocks
-    private QuestionService questionService;
+
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);  // Initialize mocks
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testGetQuestionByTestId_ShouldReturnQuestions_WhenQuestionsExist() {
-        // Arrange
+    void testGetQuestionByTestId_Success() {
         Long testId = 1L;
         int page = 0;
         int size = 1;
-        Pageable pageable = PageRequest.of(page, size);
-        List<Question> questions = Arrays.asList(new Question());
-        Page<Question> pagedQuestions = new PageImpl<>(questions, pageable, questions.size());
 
-        // Mocking the repository call
-        when(questionRepository.findByTestId(testId, pageable)).thenReturn(pagedQuestions);
+        // Mocking a list of questions
+        Question question = new Question(); // Initialize with required properties
+        List<Question> questions = Collections.singletonList(question);
 
-        // Act
-        Page<Question> result = questionService.getQuestionByTestId(testId, page, size);
+        // Mocking the behavior of the repository
+        Page<Question> questionPage = new PageImpl<>(questions);
+        when(questionRepository.findByTestId(testId, Pageable.ofSize(size))).thenReturn(questionPage);
 
-        // Assert
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.getContent().size());
-        verify(questionRepository, times(1)).findByTestId(testId, pageable);  // Verify method call
+        // Call the method to be tested
+        Map<String, Object> response = questionService.getQuestionByTestId(testId, page, size);
+
+        // Assertions
+        assertNotNull(response);
+        assertEquals("1 of 1", response.get("questionNumber"));
+        assertEquals(1L, ((Map<?, ?>) response.get("pageDetails")).get("totalElements"));
     }
 
     @Test
-    void testGetQuestionByTestId_ShouldThrowResourceNotFoundException_WhenNoQuestionsOnFirstPage() {
-        // Arrange
+    void testGetQuestionByTestId_NoQuestionsFound_FirstPage() {
         Long testId = 1L;
         int page = 0;
         int size = 1;
-        Pageable pageable = PageRequest.of(page, size);
 
-        // Mocking an empty page result
-        when(questionRepository.findByTestId(testId, pageable)).thenReturn(Page.empty());
+        // Mocking the behavior of the repository for an empty page
+        Page<Question> emptyPage = new PageImpl<>(Collections.emptyList());
+        when(questionRepository.findByTestId(testId, Pageable.ofSize(size))).thenReturn(emptyPage);
 
-        // Act & Assert
-        ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class,
-                () -> questionService.getQuestionByTestId(testId, page, size)
-        );
+        // Call and assert exception
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            questionService.getQuestionByTestId(testId, page, size);
+        });
 
-        assertEquals("No questions found for test with Test Id: " + testId, thrown.getMessage());
-        verify(questionRepository, times(1)).findByTestId(testId, pageable);  // Verify method call
+        assertEquals("No questions found for test with Test Id: " + testId, exception.getMessage());
     }
 
-
     @Test
-    void testGetQuestionByTestId_ShouldThrowPageOutOfBoundsException_WhenPageIsOutOfBounds() {
-        // Arrange
+    void testGetQuestionByTestId_PageOutOfBounds() {
         Long testId = 1L;
-        int page = 1; // Requesting a page that exceeds the available pages
+        int page = 1; // This page is out of bounds
         int size = 1;
 
-        // Create a Pageable for the page that will be requested
-        Pageable pageable = PageRequest.of(page, size);
+        // Mocking a page with only one question
+        Question question = new Question(); // Initialize with required properties
+        Page<Question> questionPage = new PageImpl<>(Collections.singletonList(question), PageRequest.of(0, size), 1); // Set up page with size and total elements
 
-        // Create a single question to be returned on page 0
-        List<Question> questionList = Collections.singletonList(new Question()); // One question
-        Page<Question> pagedQuestions = new PageImpl<>(questionList, PageRequest.of(0, size), 1); // Total elements = 1
+        // Mocking the repository to return the page with one question
+        when(questionRepository.findByTestId(testId, PageRequest.of(page, size))).thenReturn(questionPage);
 
-        // Mocking the repository call to return the page with questions
-        when(questionRepository.findByTestId(testId, pageable)).thenReturn(pagedQuestions);
+        // Call and assert exception
+        Exception exception = assertThrows(PageOutOfBoundsException.class, () -> {
+            questionService.getQuestionByTestId(testId, page, size);
+        });
 
-        // Act & Assert
-        // Expecting an exception when trying to access an out-of-bounds page
-        PageOutOfBoundsException thrown = assertThrows(PageOutOfBoundsException.class,
-                () -> questionService.getQuestionByTestId(testId, page, size) // Call with page = 1
-        );
-
-        // Assert that the exception message contains the expected information
-        assertTrue(thrown.getMessage().contains("Requested page is out of bounds"));
-
-        // Verify that the repository method was called with the correct parameters
-        verify(questionRepository, times(1)).findByTestId(testId, pageable);
+        assertEquals("Requested page is out of bounds. Maximum page number: 0", exception.getMessage());
     }
 
 }
