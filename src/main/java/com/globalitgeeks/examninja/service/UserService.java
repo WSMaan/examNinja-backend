@@ -7,6 +7,7 @@ import com.globalitgeeks.examninja.exception.UserAlreadyExistsException;
 import com.globalitgeeks.examninja.exception.UserNotFoundException;
 import com.globalitgeeks.examninja.model.User;
 import com.globalitgeeks.examninja.repository.UserRepository;
+import com.globalitgeeks.examninja.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     // Register a new user
     public User register(UserRegisterRequest registerRequest) {
@@ -33,13 +36,13 @@ public class UserService {
     }
 
     // Login user
-    public User login(UserRequest request) {
+    public String login(UserRequest request) {
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
-
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (user.getPassword().equals(request.getPassword())) {
-                return user;
+                // Generate token with userId
+                return jwtUtil.generateToken(user.getEmail(), user.getId()); // Pass userId
             } else {
                 throw new InvalidPasswordException("Incorrect password");
             }
@@ -47,6 +50,7 @@ public class UserService {
             throw new UserNotFoundException("User not found");
         }
     }
+
 
     // Change user password
     public User changePassword(UserRequest request) throws UserNotFoundException {

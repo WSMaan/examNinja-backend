@@ -29,8 +29,9 @@ public class UserController {
     // Login Endpoint
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserRequest request) {
-        User user = userService.login(request);
+        String token = userService.login(request); // Get token
         ApiResponse response = new ApiResponse("success", "User Logged in Successfully!");
+        response.setToken(token); // Set token in response
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

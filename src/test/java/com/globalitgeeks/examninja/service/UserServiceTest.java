@@ -6,6 +6,7 @@ import com.globalitgeeks.examninja.exception.InvalidPasswordException;
 import com.globalitgeeks.examninja.exception.UserNotFoundException;
 import com.globalitgeeks.examninja.model.User;
 import com.globalitgeeks.examninja.repository.UserRepository;
+import com.globalitgeeks.examninja.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,6 +22,8 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private JwtUtil jwtUtil;
 
     @InjectMocks
     private UserService userService;
@@ -53,59 +56,70 @@ class UserServiceTest {
 
     // Test case for successful login
     @Test
-    void testLoginSuccess() {
-        // Given
-        UserRequest request = new UserRequest();
-        request.setEmail("john@example.com");
-        request.setPassword("password123");
+    void testLogin_Successful() {
+        // Arrange
+        UserRequest loginRequest = new UserRequest();
+        loginRequest.setEmail("john.doe@example.com");
+        loginRequest.setPassword("password@123");
 
-        User user = new User();
-        user.setEmail("john@example.com");
-        user.setPassword("password123");
+        User mockUser = new User();
+        mockUser.setEmail("john.doe@example.com");
+        mockUser.setPassword("password@123");
+        mockUser.setId(1L); // Set a sample user ID
 
-        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(mockUser));
+        when(jwtUtil.generateToken(mockUser.getEmail(), mockUser.getId())).thenReturn("some.jwt.token");
 
-        // When
-        User loggedInUser = userService.login(request);
+        // Act
+        String token = userService.login(loginRequest);
 
-        // Then
-        assertNotNull(loggedInUser);
-        assertEquals("john@example.com", loggedInUser.getEmail());
-        verify(userRepository, times(1)).findByEmail("john@example.com");
+        // Assert
+        assertEquals("some.jwt.token", token); // Verify the token returned
+        verify(userRepository, times(1)).findByEmail(any(String.class));
+        verify(jwtUtil, times(1)).generateToken(mockUser.getEmail(), mockUser.getId());
     }
 
-    // Test case for login failure (Invalid Password)
     @Test
-    void testLoginInvalidPassword() {
-        // Given
-        UserRequest request = new UserRequest();
-        request.setEmail("john@example.com");
-        request.setPassword("wrongpassword");
+    void testLogin_UserNotFound() {
+        // Arrange
+        UserRequest loginRequest = new UserRequest();
+        loginRequest.setEmail("nonexistent@example.com");
+        loginRequest.setPassword("password@123");
 
-        User user = new User();
-        user.setEmail("john@example.com");
-        user.setPassword("password123");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.empty());
 
-        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        // Act & Assert
+        Exception exception = org.junit.jupiter.api.Assertions.assertThrows(UserNotFoundException.class, () -> {
+            userService.login(loginRequest);
+        });
 
-        // When & Then
-        assertThrows(InvalidPasswordException.class, () -> userService.login(request));
-        verify(userRepository, times(1)).findByEmail("john@example.com");
+        assertEquals("User not found", exception.getMessage());
+        verify(userRepository, times(1)).findByEmail(any(String.class));
+        verify(jwtUtil, never()).generateToken(anyString(), anyLong()); // Ensure token generation is not called
     }
 
-    // Test case for login failure (User Not Found)
     @Test
-    void testLoginUserNotFound() {
-        // Given
-        UserRequest request = new UserRequest();
-        request.setEmail("john@example.com");
-        request.setPassword("password123");
+    void testLogin_InvalidPassword() {
+        // Arrange
+        UserRequest loginRequest = new UserRequest();
+        loginRequest.setEmail("john.doe@example.com");
+        loginRequest.setPassword("wrongpassword");
 
-        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
+        User mockUser = new User();
+        mockUser.setEmail("john.doe@example.com");
+        mockUser.setPassword("password@123"); // Correct password
+        mockUser.setId(1L); // Set a sample user ID
 
-        // When & Then
-        assertThrows(UserNotFoundException.class, () -> userService.login(request));
-        verify(userRepository, times(1)).findByEmail("john@example.com");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(mockUser));
+
+        // Act & Assert
+        Exception exception = org.junit.jupiter.api.Assertions.assertThrows(InvalidPasswordException.class, () -> {
+            userService.login(loginRequest);
+        });
+
+        assertEquals("Incorrect password", exception.getMessage());
+        verify(userRepository, times(1)).findByEmail(any(String.class));
+        verify(jwtUtil, never()).generateToken(anyString(), anyLong()); // Ensure token generation is not called
     }
 
     // Test case for changing password successfully

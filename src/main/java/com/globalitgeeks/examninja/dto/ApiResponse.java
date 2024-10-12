@@ -1,11 +1,17 @@
 package com.globalitgeeks.examninja.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class ApiResponse{
+public class ApiResponse {
     private String status;
     private String message;
+    private String token; // Add token field
+
+    public ApiResponse(String status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
+
 }
