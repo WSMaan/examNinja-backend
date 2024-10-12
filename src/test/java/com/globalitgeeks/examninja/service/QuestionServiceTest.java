@@ -34,8 +34,7 @@ class QuestionServiceTest {
     @Mock
     private TestRepository testRepository;
 
-    @InjectMocks
-    private QuestionService questionService;
+
 
     @BeforeEach
     void setUp() {
