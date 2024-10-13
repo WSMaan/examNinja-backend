@@ -1,5 +1,6 @@
 package com.globalitgeeks.examninja.security;
 
+import com.globalitgeeks.examninja.exception.NotValidNumberException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -39,11 +40,18 @@ public class JwtUtil {
 
     // Extract userId from token
     public Long extractUserId(String token) {
-        return (Long) extractAllClaims(token).get("userId"); // Retrieve userId from claims
+        Object userIdObj = extractAllClaims(token).get("userId"); // Retrieve userId from claims
+
+        // Ensure userId is not null before casting
+        if (userIdObj instanceof Number) {
+            return ((Number) userIdObj).longValue(); // Convert to Long
+        } else {
+            throw new NotValidNumberException("User ID is not a valid number.");
+        }
     }
 
     // Extract all claims from token
-    private Claims extractAllClaims(String token) {
+    Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 
@@ -54,7 +62,7 @@ public class JwtUtil {
     }
 
     // Check if token is expired
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 }
