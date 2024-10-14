@@ -4,6 +4,7 @@ import com.globalitgeeks.examninja.exception.NotValidNumberException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -13,7 +14,8 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    private String SECRET_KEY = "your_secret_key"; // Use a strong secret key
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
     // Generate token with userId
     public String generateToken(String username, Long userId) {
