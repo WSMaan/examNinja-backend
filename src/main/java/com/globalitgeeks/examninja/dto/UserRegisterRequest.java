@@ -15,6 +15,9 @@ public class UserRegisterRequest {
     private String lastName;
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is mandatory")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$",
+            message = "Email should be a valid address (e.g., example@mail.com)")
     private String email;
     @NotBlank(message = "Password is required.")
     @NotEmpty(message = "Password can't be empty")

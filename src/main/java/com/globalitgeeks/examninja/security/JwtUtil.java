@@ -1,6 +1,5 @@
 package com.globalitgeeks.examninja.security;
 
-import com.globalitgeeks.examninja.exception.NotValidNumberException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -48,8 +47,9 @@ public class JwtUtil {
         if (userIdObj instanceof Number) {
             return ((Number) userIdObj).longValue(); // Convert to Long
         } else {
-            throw new NotValidNumberException("User ID is not a valid number.");
+            throw new IllegalArgumentException("signing key cannot be null or empty.");
         }
+        //User ID is not a valid number.--replaced with -- signing key cannot be null or empty
     }
 
     // Extract all claims from token

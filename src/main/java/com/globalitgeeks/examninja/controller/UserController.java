@@ -1,14 +1,13 @@
 package com.globalitgeeks.examninja.controller;
 
-import com.globalitgeeks.examninja.dto.ApiResponse;
-import com.globalitgeeks.examninja.dto.UserRegisterRequest;
-import com.globalitgeeks.examninja.dto.UserRequest;
+import com.globalitgeeks.examninja.dto.*;
 import com.globalitgeeks.examninja.model.User;
 import com.globalitgeeks.examninja.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
@@ -37,9 +36,19 @@ public class UserController {
 
     // Change Password Endpoint
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(@Valid @RequestBody UserRequest request) {
-        User updatedUser = userService.changePassword(request);
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(request);
         ApiResponse response = new ApiResponse("success", "Password changed successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    //Reset Password Endpoint
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @Validated @RequestBody ResetPasswordRequest request) {
+
+        User nu = userService.resetPassword(request);
+        ApiResponse response = new ApiResponse("success","Password reset successfully. New Password is: " + nu.getPassword());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

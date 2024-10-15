@@ -1,10 +1,7 @@
 package com.globalitgeeks.examninja.controller;
 
-import com.globalitgeeks.examninja.dto.ApiResponse;
-import com.globalitgeeks.examninja.dto.UserRegisterRequest;
-import com.globalitgeeks.examninja.dto.UserRequest;
-import com.globalitgeeks.examninja.exception.InvalidPasswordException;
-import com.globalitgeeks.examninja.exception.UserNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.globalitgeeks.examninja.dto.*;
 import com.globalitgeeks.examninja.model.User;
 import com.globalitgeeks.examninja.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,14 +11,18 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class UserControllerTest {
+    private MockMvc mockMvc;
 
     @InjectMocks
     private UserController userController;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
     private UserService userService;
@@ -29,6 +30,8 @@ public class UserControllerTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+
     }
 
     @Test
@@ -82,15 +85,18 @@ public class UserControllerTest {
     @Test
     void testChangePassword() {
         // Arrange
-        UserRequest changePasswordRequest = new UserRequest();
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
         changePasswordRequest.setEmail("john.doe@example.com");
-        changePasswordRequest.setPassword("newpassword@123");
+        changePasswordRequest.setOldPassword("newpassword@123");
+        changePasswordRequest.setOldPassword("examninja@123");
+
 
         User mockUser = new User();
         mockUser.setEmail("john.doe@example.com");
         mockUser.setPassword("newpassword@123");
+        mockUser.setPassword("examninja@123");
 
-        when(userService.changePassword(any(UserRequest.class))).thenReturn(mockUser);
+        when(userService.changePassword(any(ChangePasswordRequest.class))).thenReturn(mockUser);
 
         // Act
         ResponseEntity<?> response = userController.changePassword(changePasswordRequest);
@@ -98,6 +104,27 @@ public class UserControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Password changed successfully", ((ApiResponse) response.getBody()).getMessage());
-        verify(userService, times(1)).changePassword(any(UserRequest.class));
+        verify(userService, times(1)).changePassword(any(ChangePasswordRequest.class));
+    }
+    @Test
+    void testResetPassword_Success() throws Exception {
+        // Arrange
+        ResetPasswordRequest request = new ResetPasswordRequest();
+        request.setEmail("john.doe@example.com");
+
+        User mockUser = new User();
+        mockUser.setEmail("john.doe@example.com");
+        mockUser.setPassword("newRandomPassword@123");
+
+        when(userService.resetPassword(any(ResetPasswordRequest.class))).thenReturn(mockUser);
+
+        // Act
+        ResponseEntity<?> response = userController.resetPassword(request);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        String expectedMessage = "Password reset successfully. New Password is: newRandomPassword@123";
+        assertEquals(expectedMessage, ((ApiResponse) response.getBody()).getMessage());
+        verify(userService, times(1)).resetPassword(any(ResetPasswordRequest.class));
     }
 }

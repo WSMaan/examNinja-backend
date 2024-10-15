@@ -1,5 +1,7 @@
 package com.globalitgeeks.examninja.service;
 
+import com.globalitgeeks.examninja.dto.ChangePasswordRequest;
+import com.globalitgeeks.examninja.dto.ResetPasswordRequest;
 import com.globalitgeeks.examninja.dto.UserRegisterRequest;
 import com.globalitgeeks.examninja.dto.UserRequest;
 import com.globalitgeeks.examninja.exception.InvalidPasswordException;
@@ -125,40 +127,113 @@ class UserServiceTest {
     // Test case for changing password successfully
     @Test
     void testChangePasswordSuccess() {
-        // Given
-        UserRequest request = new UserRequest();
+        // Given: Valid request and user in the repository
+        ChangePasswordRequest request = new ChangePasswordRequest();
         request.setEmail("john@example.com");
-        request.setPassword("newpassword");
+        request.setOldPassword("oldPassword");
+        request.setNewPassword("newPassword123@");
 
         User user = new User();
         user.setEmail("john@example.com");
-        user.setPassword("oldpassword");
+        user.setPassword("oldPassword");
 
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        // When
+        // When: Password change is requested
         User updatedUser = userService.changePassword(request);
+
+        // Then: Verify the results
+        assertNotNull(updatedUser);
+        assertEquals("newPassword123@", updatedUser.getPassword());
+
+        verify(userRepository, times(1)).findByEmail("john@example.com");
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void testChangePasswordInvalidOldPassword() {
+        // Given: Old password does not match
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setEmail("john@example.com");
+        request.setOldPassword("wrongPassword");
+        request.setNewPassword("newPassword123@");
+
+        User user = new User();
+        user.setEmail("john@example.com");
+        user.setPassword("oldPassword");
+
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+
+        // When & Then: Expect IllegalArgumentException for incorrect old password
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.changePassword(request));
+
+        assertEquals("Old password is incorrect", exception.getMessage());
+        verify(userRepository, times(1)).findByEmail("john@example.com");
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void testChangePasswordUserNotFound() {
+        // Given: User not found for the provided email
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setEmail("unknown@example.com");
+        request.setOldPassword("oldPassword");
+        request.setNewPassword("newPassword123@");
+
+        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        // When & Then: Expect UserNotFoundException
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> userService.changePassword(request));
+
+        assertEquals("User not found with the provided email.", exception.getMessage());
+        verify(userRepository, times(1)).findByEmail("unknown@example.com");
+        verify(userRepository, never()).save(any(User.class));
+    }
+    @Test
+    void testResetPasswordSuccess() {
+        // Given
+        ResetPasswordRequest request = new ResetPasswordRequest();
+        request.setEmail("john@example.com");
+
+        User user = new User();
+        user.setEmail("john@example.com");
+
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        User updatedUser = userService.resetPassword(request);
 
         // Then
         assertNotNull(updatedUser);
-        assertEquals("newpassword", updatedUser.getPassword());
+        assertTrue(
+                updatedUser.getPassword().matches("^(?=.*[!@#$%^&*()]).{10,}$"),
+                "Password should be at least 10 characters long with one special character"
+        );
         verify(userRepository, times(1)).findByEmail("john@example.com");
         verify(userRepository, times(1)).save(any(User.class));
     }
 
-    // Test case for changing password (User Not Found)
-    @Test
-    void testChangePasswordUserNotFound() {
-        // Given
-        UserRequest request = new UserRequest();
-        request.setEmail("nonexistent@example.com");
-        request.setPassword("newpassword");
 
-        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+    @Test
+    void testResetPasswordEmailNotRegistered() {
+        // Given
+        ResetPasswordRequest request = new ResetPasswordRequest();
+        request.setEmail("unknown@example.com");
+
+        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(UserNotFoundException.class, () -> userService.changePassword(request));
-        verify(userRepository, times(1)).findByEmail("nonexistent@example.com");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.resetPassword(request));
+
+        assertEquals("This Email is not registered", exception.getMessage());
+        verify(userRepository, times(1)).findByEmail("unknown@example.com");
+        verify(userRepository, never()).save(any(User.class));
     }
+
+
 }
