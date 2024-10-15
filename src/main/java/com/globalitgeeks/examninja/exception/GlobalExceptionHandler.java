@@ -63,4 +63,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomisedErrorResponse> handleResourceNotFoundException(PageOutOfBoundsException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomisedErrorResponse(ex.getMessage()));
     }
+    @ExceptionHandler(NotValidNumberException.class)
+    public ResponseEntity<CustomisedErrorResponse> handleNotValidNumberException(NotValidNumberException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomisedErrorResponse(ex.getMessage()));
+    }
+
 }

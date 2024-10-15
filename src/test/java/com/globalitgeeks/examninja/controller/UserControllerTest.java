@@ -3,6 +3,8 @@ package com.globalitgeeks.examninja.controller;
 import com.globalitgeeks.examninja.dto.ApiResponse;
 import com.globalitgeeks.examninja.dto.UserRegisterRequest;
 import com.globalitgeeks.examninja.dto.UserRequest;
+import com.globalitgeeks.examninja.exception.InvalidPasswordException;
+import com.globalitgeeks.examninja.exception.UserNotFoundException;
 import com.globalitgeeks.examninja.model.User;
 import com.globalitgeeks.examninja.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,11 +64,8 @@ public class UserControllerTest {
         loginRequest.setEmail("john.doe@example.com");
         loginRequest.setPassword("password@123");
 
-        User mockUser = new User();
-        mockUser.setEmail("john.doe@example.com");
-        mockUser.setPassword("password@123");
-
-        when(userService.login(any(UserRequest.class))).thenReturn(mockUser);
+        String token = "some.jwt.token";  // Example token to be returned
+        when(userService.login(any(UserRequest.class))).thenReturn(token);
 
         // Act
         ResponseEntity<?> response = userController.login(loginRequest);
@@ -74,8 +73,10 @@ public class UserControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("User Logged in Successfully!", ((ApiResponse) response.getBody()).getMessage());
+        assertEquals(token, ((ApiResponse) response.getBody()).getToken()); // Check if the token is included in the response
         verify(userService, times(1)).login(any(UserRequest.class));
     }
+
 
     // Test for Change Password
     @Test
