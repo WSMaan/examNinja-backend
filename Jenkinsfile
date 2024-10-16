@@ -68,11 +68,11 @@ pipeline {
     failure {
         script {
             echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
-            slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.")
+           // slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.")
         }
     }
     success {
-        slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!')
+       // slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!')
         echo 'Pipeline succeeded!'
     }
 }
