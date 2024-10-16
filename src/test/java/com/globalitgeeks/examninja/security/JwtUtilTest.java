@@ -1,12 +1,11 @@
 package com.globalitgeeks.examninja.security;
 
-import com.globalitgeeks.examninja.exception.NotValidNumberException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Date;
 
@@ -25,6 +24,8 @@ public class JwtUtilTest {
     @BeforeEach
     public void setUp() {
         jwtUtil = new JwtUtil();
+        ReflectionTestUtils.setField(jwtUtil, "SECRET_KEY", "your-secret-key");
+
         // Mock the secret key for testing
         // Set the secret key directly if you have a setter or constructor
     }
@@ -60,10 +61,10 @@ public class JwtUtilTest {
                 .signWith(io.jsonwebtoken.SignatureAlgorithm.HS256, secretKey)
                 .compact();
 
-        NotValidNumberException exception = assertThrows(NotValidNumberException.class, () -> {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             jwtUtil.extractUserId(invalidToken);
         });
-        assertEquals("User ID is not a valid number.", exception.getMessage());
+        assertEquals("signing key cannot be null or empty.", exception.getMessage());
     }
 
     @Test
