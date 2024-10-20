@@ -19,7 +19,6 @@
         <java.version>17</java.version>
         <sonar.projectKey>examNinja-backend</sonar.projectKey>
         <sonar.host.url>http://your-sonarqube-server:9000</sonar.host.url> <!-- Replace with your SonarQube server URL -->
-        <sonar.login>your-sonarqube-token</sonar.login> <!-- Optional: If using token-based authentication -->
     </properties>
     <dependencies>
         <dependency>
@@ -102,6 +101,9 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.9.1.2184</version>
+                <configuration>
+                    <sonar.login>${env.SONAR_TOKEN}</sonar.login> <!-- Using environment variable for the token -->
+                </configuration>
             </plugin>
         </plugins>
     </build>
