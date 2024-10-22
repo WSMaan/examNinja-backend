@@ -1,0 +1,85 @@
+package com.globalitgeeks.examninja.repository;
+
+import com.globalitgeeks.examninja.model.ExamResultDetail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
+class ExamResultDetailRepositoryTest {
+
+    // Mocking the ExamResultDetailRepository
+    @Mock
+    private ExamResultDetailRepository examResultDetailRepository;
+
+    @BeforeEach
+    void setUp() {
+        // Initialize mocks
+        MockitoAnnotations.openMocks(this);
+    }
+
+    // Test method for findByTestId
+    @Test
+    void testFindByTestId_ShouldReturnList_WhenTestIdExists() {
+        // Arrange
+        Long testId = 1L;
+        List<ExamResultDetail> examResultDetails = Arrays.asList(
+                new ExamResultDetail(1L, 1L, 1L, 1L, "A", "B"),
+                new ExamResultDetail(2L, 1L, 2L, 2L, "B", "C")
+        );
+        // Mock the repository behavior
+        when(examResultDetailRepository.findByTestId(testId)).thenReturn(examResultDetails);
+
+        // Act
+        List<ExamResultDetail> result = examResultDetailRepository.findByTestId(testId);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals("A", result.get(0).getSubmittedAnswer());
+    }
+
+    // Test method for findById
+    @Test
+    void testFindById_ShouldReturnOptional_WhenUserIdExists() {
+        // Arrange
+        Long userId = 1L;
+        ExamResultDetail examResultDetail = new ExamResultDetail(1L, 1L, userId, 1L, "A", "B");
+        // Mock the repository behavior
+        when(examResultDetailRepository.findById(userId)).thenReturn(Optional.of(examResultDetail));
+
+        // Act
+        Optional<ExamResultDetail> result = examResultDetailRepository.findById(userId);
+
+        // Assert
+        assertEquals(true, result.isPresent());
+        assertEquals("A", result.get().getSubmittedAnswer());
+    }
+
+    // Test method for findByQuestionId
+    @Test
+    void testFindByQuestionId_ShouldReturnList_WhenQuestionIdExists() {
+        // Arrange
+        Long questionId = 1L;
+        List<ExamResultDetail> examResultDetails = Arrays.asList(
+                new ExamResultDetail(1L, 1L, 1L, questionId, "A", "B"),
+                new ExamResultDetail(2L, 1L, 2L, questionId, "C", "D")
+        );
+        // Mock the repository behavior
+        when(examResultDetailRepository.findByQuestionId(questionId)).thenReturn(examResultDetails);
+
+        // Act
+        List<ExamResultDetail> result = examResultDetailRepository.findByQuestionId(questionId);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals("A", result.get(0).getSubmittedAnswer());
+    }
+}
