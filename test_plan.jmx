@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.5" jmeter="5.5">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.name">Test Plan</stringProp>
+      <elementProp name="TestPlan.userDefinedVariables" guiclass="UserDefinedVariablesGui" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.comments"/>
+      <boolProp name="TestPlan.functionalMode">false</boolProp>
+      <boolProp name="TestPlan.tearDownOnShutdown">true</boolProp>
+      <boolProp name="TestPlan.serializeThreadGroups">false</boolProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.name">Thread Group</stringProp>
+        <elementProp name="ThreadGroup.numThreads" guiclass="ThreadGroupNumThreadsGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+          <stringProp name="ThreadGroup.numThreads">1</stringProp>
+        </elementProp>
+        <elementProp name="ThreadGroup.rampTime" guiclass="ThreadGroupRampTimeGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+          <stringProp name="ThreadGroup.rampTime">1</stringProp>
+        </elementProp>
+        <elementProp name="ThreadGroup.duration" guiclass="ThreadGroupDurationGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+          <stringProp name="ThreadGroup.duration">10</stringProp>
+        </elementProp>
+        <elementProp name="ThreadGroup.delay" guiclass="ThreadGroupDelayGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+          <stringProp name="ThreadGroup.delay">0</stringProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <JSR223Sampler guiclass="JSR223SamplerGui" testclass="JSR223Sampler" testname="Sample" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="filename">http://your-backend-endpoint/api</stringProp>
+          <stringProp name="script">// Add your logic here</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

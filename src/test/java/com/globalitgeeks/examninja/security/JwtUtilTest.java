@@ -112,4 +112,5 @@ public class JwtUtilTest {
         token = jwtUtil.generateToken(username, userId);
         assertFalse(jwtUtil.isTokenExpired(token));
     }
+    
 }
