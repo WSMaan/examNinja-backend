@@ -5,8 +5,8 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMFUDEPHEI'
-        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMLKSMLRD4'
+        AWS_SECRET_ACCESS_KEY = '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'
         BACKEND_DIR = 'backend'
         FAILURE_REASON = ''  // To capture failure reason
     }
@@ -42,6 +42,27 @@ pipeline {
             }
         }
 
+        // JMeter Test Stage
+        stage('Run JMeter Tests') {
+            steps {
+                script {
+                    // Run JMeter using Docker with the test plan
+                    sh 'docker run --rm -v /var/lib/jenkins/jmeter:/tests justb4/jmeter -n -t /tests/Test\\ Plan.jmx -l /tests/results.jtl'
+                }
+            }
+            post {
+                success {
+                    echo 'JMeter tests passed!'
+                }
+                failure {
+                    script {
+                        env.FAILURE_REASON = 'JMeter tests'
+                        echo 'JMeter tests failed!'
+                    }
+                }
+            }
+        }
+
         // stage('Push Docker Images to ECR') {
         //     steps {
         //         sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
@@ -61,20 +82,19 @@ pipeline {
         // }
     }
 
-  post {
-    always {
-        cleanWs()
-    }
-    failure {
-        script {
-            echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
-           // slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.")
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            script {
+                echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
+                // slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.")
+            }
+        }
+        success {
+            // slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!')
+            echo 'Pipeline succeeded!'
         }
     }
-    success {
-       // slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!')
-        echo 'Pipeline succeeded!'
-    }
-}
-
 }
