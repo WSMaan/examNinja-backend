@@ -15,10 +15,8 @@ import java.util.Map;
 
 public class StoreAnswer {
 
-    private Integer studentId;
-    private Integer testId;
-    private Integer questionId;
-    private Integer questionNumber;
+    private Long testId;
+    private Long questionId;
     private String selectedOption;
     }
 

@@ -8,10 +8,10 @@ import java.util.Map;
 @Service
 public class AnswerService {
 
-    private Map<String, String> answerMap = new HashMap<>();
+    private static Map<String, String> answerMap = new HashMap<>();
     // Method to store answer selected by user in the Hash Map
-    public void storeAnswer(Integer studentId, Integer testId, Integer questionId, Integer questionNumber, String selectedOption) {
-        String key = generateKey(studentId, testId, questionId, questionNumber);
+    public void storeAnswer(Long userId, Long testId, Long questionId, String selectedOption) {
+        String key = generateKey(userId, testId, questionId);
         if (answerMap.containsKey(key)) {
             //Updates the existing answer
             answerMap.put(key, selectedOption);
@@ -19,24 +19,21 @@ public class AnswerService {
         } else {
             //Inserts a new answer
             answerMap.put(key, selectedOption);
-
         }
-
-
     }
 
     // Method to generate the unique key (studentId-questionId)
-    private String generateKey(Integer studentId, Integer testId, Integer questionId, Integer questionNumber) {
-        return studentId + "-" + testId + "-" + questionId + "-" + questionNumber;
+    private static String generateKey(Long userId, Long testId, Long questionId) {
+        return userId + "-" +testId + "-" + questionId;
     }
 
-    public Map<String, String> getAllAnswers() {
+    public static Map<String, String> getAllAnswers() {
         // Return a copy of the map
         return new HashMap<>(answerMap);
     }
 
-    public String getAnswer(Integer studentId, Integer testId, Integer questionId, Integer questionNumber) {
-        return answerMap.get(generateKey(studentId, testId, questionId, questionNumber));
+    public static String getAnswer(Long userId, Long testId, Long questionId) {
+        return answerMap.get(generateKey(userId, testId, questionId));
     }
 
 }
