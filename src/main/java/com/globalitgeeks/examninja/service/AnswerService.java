@@ -9,22 +9,20 @@ import java.util.Map;
 public class AnswerService {
 
     private Map<String, String> answerMap = new HashMap<>();
-
+    // Method to store answer selected by user in the Hash Map
     public void storeAnswer(Integer studentId, Integer testId, Integer questionId, Integer questionNumber, String selectedOption) {
         String key = generateKey(studentId, testId, questionId, questionNumber);
         if (answerMap.containsKey(key)) {
             //Updates the existing answer
             answerMap.put(key, selectedOption);
-            System.out.println("Answer updated for Question ID: " + questionId);
+
         } else {
             //Inserts a new answer
             answerMap.put(key, selectedOption);
-            System.out.println("New Answer added for  Question ID: " + questionId);
+
         }
 
-    //    for (Map.Entry<String, String> entry : answerMap.entrySet()) {
-    //        System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
-    //    }
+
     }
 
     // Method to generate the unique key (studentId-questionId)
