@@ -1,10 +1,16 @@
 package com.globalitgeeks.examninja.controller;
 
+import com.globalitgeeks.examninja.dto.ApiResponse;
+import com.globalitgeeks.examninja.dto.StoreAnswer;
+import com.globalitgeeks.examninja.model.Question;
 import com.globalitgeeks.examninja.dto.TestDto;
 import com.globalitgeeks.examninja.security.JwtUtil;
 import com.globalitgeeks.examninja.service.QuestionService;
+import com.globalitgeeks.examninja.service.AnswerService;
 import com.globalitgeeks.examninja.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,10 +47,30 @@ public class TestController {
     @GetMapping("/user")
     public ResponseEntity<List<TestDto>> getTestsForUser(
             @RequestHeader("Authorization") String token) { // Accept JWT token
-
         Long extractedUserId = jwtUtil.extractUserId(token.replace("Bearer ", "")); // Extract user ID from token
 
         List<TestDto> testList = testService.getTestsForUser(extractedUserId); // Use extracted user ID
         return ResponseEntity.ok(testList);
     }
+
+
+    @Autowired
+    private AnswerService answerService;
+    @PostMapping("/save")
+    public ResponseEntity<?> storeAnswer(@RequestBody StoreAnswer studentAnswerDTO){
+        Integer studentId = studentAnswerDTO.getStudentId();
+        Integer testId = studentAnswerDTO.getTestId();
+        Integer questionId = studentAnswerDTO.getQuestionId();
+        Integer questionNumber = studentAnswerDTO.getQuestionNumber();
+        String selectedOption = studentAnswerDTO.getSelectedOption();
+
+        answerService.storeAnswer(studentId, testId, questionId, questionNumber, selectedOption);
+
+        ApiResponse response = new ApiResponse("success", "Answer saved successfully!");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
 }
+
+
