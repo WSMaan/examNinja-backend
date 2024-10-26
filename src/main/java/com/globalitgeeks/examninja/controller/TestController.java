@@ -57,14 +57,13 @@ public class TestController {
     @Autowired
     private AnswerService answerService;
     @PostMapping("/save")
-    public ResponseEntity<?> storeAnswer(@RequestBody StoreAnswer studentAnswerDTO){
-        Integer studentId = studentAnswerDTO.getStudentId();
-        Integer testId = studentAnswerDTO.getTestId();
-        Integer questionId = studentAnswerDTO.getQuestionId();
-        Integer questionNumber = studentAnswerDTO.getQuestionNumber();
+    public ResponseEntity<?> storeAnswer(@RequestBody StoreAnswer studentAnswerDTO, @RequestHeader("Authorization") String token){
+        Long extractedUserId = jwtUtil.extractUserId(token.replace("Bearer ", "")); // Extract user ID from token
+        Long testId = studentAnswerDTO.getTestId();
+        Long questionId = studentAnswerDTO.getQuestionId();
         String selectedOption = studentAnswerDTO.getSelectedOption();
 
-        answerService.storeAnswer(studentId, testId, questionId, questionNumber, selectedOption);
+        answerService.storeAnswer(extractedUserId, testId, questionId, selectedOption);
 
         ApiResponse response = new ApiResponse("success", "Answer saved successfully!");
         return ResponseEntity.status(HttpStatus.OK).body(response);

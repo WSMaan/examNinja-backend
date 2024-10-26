@@ -15,6 +15,7 @@ public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "qid")
     private Long questionId;
 
     private String question;
