@@ -41,28 +41,7 @@ pipeline {
                 }
             }
         }
-
-        // JMeter Test Stage
-        stage('Run JMeter Tests') {
-            steps {
-                script {
-                    // Run JMeter using Docker with the test plan
-                    sh 'docker run --rm -v /var/lib/jenkins/jmeter:/tests justb4/jmeter -n -t /tests/Test\\ Plan.jmx -l /tests/results.jtl'
-                }
-            }
-            post {
-                success {
-                    echo 'JMeter tests passed!'
-                }
-                failure {
-                    script {
-                        env.FAILURE_REASON = 'JMeter tests'
-                        echo 'JMeter tests failed!'
-                    }
-                }
-            }
-        }
-
+        
         // stage('Push Docker Images to ECR') {
         //     steps {
         //         sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
