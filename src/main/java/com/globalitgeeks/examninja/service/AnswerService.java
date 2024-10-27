@@ -1,6 +1,5 @@
 package com.globalitgeeks.examninja.service;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

@@ -50,15 +50,18 @@ class TestControllerTest {
         int page = 0;
         String token = "Bearer mock-jwt-token";  // Mock token for testing
 
+        // Mock user ID extracted from the token
+        Long mockUserId = 1L; // Sample user ID
+
         // Mocking the response from the QuestionService
         Map<String, Object> mockResponse = new HashMap<>();
         mockResponse.put("questionNumber", "1 of 60");
         mockResponse.put("questions", new Object[] {}); // Mock question objects as needed
+        mockResponse.put("selectedOption", null); // Assuming no selection initially
 
         // Mocking the service method
-        when(questionService.getQuestionByTestId(testId, page, 1)).thenReturn(mockResponse);
-        when(jwtUtil.extractUserId("mock-jwt-token")).thenReturn(1L);  // Mock user ID extraction
-
+        when(jwtUtil.extractUserId("mock-jwt-token")).thenReturn(mockUserId);  // Mock user ID extraction
+        when(questionService.getQuestionByTestId(testId, page, 1, mockUserId)).thenReturn(mockResponse);
 
         // Call the method with the token in the request header
         ResponseEntity<Map<String, Object>> responseEntity = testController.getQuestionByTestId(testId, page, token);

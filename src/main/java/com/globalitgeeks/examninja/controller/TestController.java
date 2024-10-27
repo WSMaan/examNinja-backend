@@ -34,12 +34,12 @@ public class TestController {
     public ResponseEntity<Map<String, Object>> getQuestionByTestId(
             @PathVariable Long testId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestHeader("Authorization") String token) { // Accept JWT token
+            @RequestHeader("Authorization") String token) {
 
         Long userId = jwtUtil.extractUserId(token.replace("Bearer ", "")); // Extract user ID from token
 
-        // Delegating logic to the QuestionService
-        Map<String, Object> response = questionService.getQuestionByTestId(testId, page, 1);
+        // Updated service call to include userId
+        Map<String, Object> response = questionService.getQuestionByTestId(testId, page, 1, userId);
 
         return ResponseEntity.ok(response);
     }
