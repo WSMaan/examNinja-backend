@@ -5,8 +5,8 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMLKSMLRD4'
-        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_ACCESS_KEY_ID = ''
+        AWS_SECRET_ACCESS_KEY = ''
         BACKEND_DIR = 'backend'
         FAILURE_REASON = ''  // To capture failure reason
     }
