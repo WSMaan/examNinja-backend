@@ -3,6 +3,7 @@ package com.globalitgeeks.examninja.service;
 import com.globalitgeeks.examninja.exception.PageOutOfBoundsException;
 import com.globalitgeeks.examninja.exception.ResourceNotFoundException;
 import com.globalitgeeks.examninja.model.Question;
+import com.globalitgeeks.examninja.model.TestTable;
 import com.globalitgeeks.examninja.repository.QuestionRepository;
 import com.globalitgeeks.examninja.repository.TestRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,20 +14,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class QuestionServiceTest {
-
-    @InjectMocks
-    private QuestionService questionService;
 
     @Mock
     private QuestionRepository questionRepository;
@@ -34,7 +28,11 @@ class QuestionServiceTest {
     @Mock
     private TestRepository testRepository;
 
+    @Mock
+    private AnswerService answerService;
 
+    @InjectMocks
+    private QuestionService questionService;
 
     @BeforeEach
     void setUp() {
@@ -43,64 +41,130 @@ class QuestionServiceTest {
 
     @Test
     void testGetQuestionByTestId_Success() {
+        // Mock data
         Long testId = 1L;
         int page = 0;
         int size = 1;
+        Long userId = 1L;
 
-        // Mocking a list of questions
-        Question question = new Question(); // Initialize with required properties
-        List<Question> questions = Collections.singletonList(question);
+        TestTable test = new TestTable();
+        test.setTestId(testId);
+        test.setTestName("Sample Test");
 
-        // Mocking the behavior of the repository
-        Page<Question> questionPage = new PageImpl<>(questions);
-        when(questionRepository.findByTestId(testId, Pageable.ofSize(size))).thenReturn(questionPage);
+        Question question = new Question();
+        question.setQuestionId(100L);
+        question.setQuestion("What is the capital of France?");
+        question.setOption1("Berlin");
+        question.setOption2("Madrid");
+        question.setOption3("Paris");
+        question.setOption4("Lisbon");
+        question.setCorrectAnswer("c) Paris");
+        question.setAnswerDescription("Paris is the capital of France.");
+        question.setCategory("Geography");
+        question.setLevel("Easy");
+        question.setTestId(testId);
 
-        // Call the method to be tested
-        Map<String, Object> response = questionService.getQuestionByTestId(testId, page, size);
+        // Mocking behavior
+        when(testRepository.findById(testId)).thenReturn(Optional.of(test));
+        when(questionRepository.findByTestId(testId, PageRequest.of(page, size))).thenReturn(new PageImpl<>(Arrays.asList(question)));
+
+        // Calling the service method
+        Map<String, Object> response = questionService.getQuestionByTestId(testId, page, size, userId);
 
         // Assertions
-        assertNotNull(response);
+        assertEquals("Sample Test", response.get("testName"));
         assertEquals("1 of 1", response.get("questionNumber"));
-        assertEquals(1L, ((Map<?, ?>) response.get("pageDetails")).get("totalElements"));
+
+        List<Map<String, Object>> questions = (List<Map<String, Object>>) response.get("questions");
+        assertEquals(1, questions.size());
+        assertEquals("What is the capital of France?", questions.get(0).get("question"));
+        assertEquals("c) Paris", questions.get(0).get("correctAnswer"));
     }
 
     @Test
-    void testGetQuestionByTestId_NoQuestionsFound_FirstPage() {
+    void testGetQuestionByTestId_NoQuestionsFound() {
         Long testId = 1L;
         int page = 0;
         int size = 1;
+        Long userId = 1L;
 
-        // Mocking the behavior of the repository for an empty page
-        Page<Question> emptyPage = new PageImpl<>(Collections.emptyList());
-        when(questionRepository.findByTestId(testId, Pageable.ofSize(size))).thenReturn(emptyPage);
+        TestTable test = new TestTable();
+        test.setTestId(testId);
+        test.setTestName("Sample Test");
 
-        // Call and assert exception
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
-            questionService.getQuestionByTestId(testId, page, size);
+        // Mocking behavior
+        when(testRepository.findById(testId)).thenReturn(Optional.of(test));
+        when(questionRepository.findByTestId(testId, PageRequest.of(page, size))).thenReturn(new PageImpl<>(List.of()));
+
+        // Assertions
+        assertThrows(ResourceNotFoundException.class, () -> {
+            questionService.getQuestionByTestId(testId, page, size, userId);
         });
-
-        assertEquals("No questions found for test with Test Id: " + testId, exception.getMessage());
     }
 
     @Test
     void testGetQuestionByTestId_PageOutOfBounds() {
         Long testId = 1L;
-        int page = 1; // This page is out of bounds
+        int page = 1; // Trying to access a non-existent page
         int size = 1;
+        Long userId = 1L;
 
-        // Mocking a page with only one question
-        Question question = new Question(); // Initialize with required properties
-        Page<Question> questionPage = new PageImpl<>(Collections.singletonList(question), PageRequest.of(0, size), 1); // Set up page with size and total elements
+        // Mocking the TestTable
+        TestTable test = new TestTable();
+        test.setTestId(testId);
+        test.setTestName("Sample Test");
 
-        // Mocking the repository to return the page with one question
-        when(questionRepository.findByTestId(testId, PageRequest.of(page, size))).thenReturn(questionPage);
+        // Mocking behavior for testRepository
+        when(testRepository.findById(testId)).thenReturn(Optional.of(test));
 
-        // Call and assert exception
-        Exception exception = assertThrows(PageOutOfBoundsException.class, () -> {
-            questionService.getQuestionByTestId(testId, page, size);
+        // Mocking behavior for questionRepository
+        // Return an empty page for page 1 (out of bounds)
+        when(questionRepository.findByTestId(testId, PageRequest.of(1, size)))
+                .thenReturn(Page.empty());
+
+        // Mocking behavior for page 0 to return a question
+        Question question = new Question();
+        question.setQuestionId(100L);
+        question.setQuestion("What is the capital of France?");
+        question.setOption1("Berlin");
+        question.setOption2("Madrid");
+        question.setOption3("Paris");
+        question.setOption4("Lisbon");
+        question.setCorrectAnswer("c) Paris");
+        question.setAnswerDescription("Paris is the capital of France.");
+        question.setCategory("Geography");
+        question.setLevel("Easy");
+        question.setTestId(testId);
+
+        // This should return a page with the question on page 0
+        when(questionRepository.findByTestId(testId, PageRequest.of(0, size)))
+                .thenReturn(new PageImpl<>(Collections.singletonList(question), PageRequest.of(0, size), 1));
+
+        // Assertions
+        assertThrows(PageOutOfBoundsException.class, () -> {
+            questionService.getQuestionByTestId(testId, page, size, userId);
         });
-
-        assertEquals("Requested page is out of bounds. Maximum page number: 0", exception.getMessage());
     }
 
+
+
+    @Test
+    void testGetQuestionByTestId_ResourceNotFound() {
+        Long testId = 1L;
+        int page = 0;
+        int size = 1;
+        Long userId = 1L;
+
+        // Mocking behavior for Test not found
+        when(testRepository.findById(testId)).thenReturn(Optional.empty());
+
+        // Mocking behavior for questions found for the test ID
+        when(questionRepository.findByTestId(testId, PageRequest.of(page, size)))
+                .thenReturn(Page.empty()); // Return an empty Page here
+
+        // Assertions
+        assertThrows(ResourceNotFoundException.class, () -> {
+            questionService.getQuestionByTestId(testId, page, size, userId);
+        });
+    }
 }

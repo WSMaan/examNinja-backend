@@ -13,20 +13,22 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 @Service
 public class TestService {
+
     @Autowired
     private QuestionRepository questionRepository;
 
     @Autowired
     private TestRepository testRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     public List<TestDto> getTestsForUser(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
-
             // Get all available tests
             List<TestTable> allTests = testRepository.findAll();
             List<TestDto> testDtos = new ArrayList<>();
@@ -39,8 +41,6 @@ public class TestService {
             }
 
             return testDtos;
-
-
         } else {
             throw new UserNotFoundException("User not found");
         }
