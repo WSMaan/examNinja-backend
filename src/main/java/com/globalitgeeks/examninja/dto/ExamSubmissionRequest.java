@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 @Data
@@ -14,9 +17,14 @@ import java.util.Map;
 public class ExamSubmissionRequest {
     @NotNull(message = "Test ID cannot be null")
     private Long testId;
-    @NotNull(message = "User ID cannot be null")
+
     private Long id;
+
     @NotEmpty(message = "Answers cannot be empty")
     private List<AnswerDTO> answers;
+
+    private LocalDate submissionDate;
+
+    private LocalTime submissionTime;
 }
 

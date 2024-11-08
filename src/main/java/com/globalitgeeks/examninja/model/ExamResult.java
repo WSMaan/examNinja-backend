@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.DataOutput;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -18,6 +19,7 @@ import java.math.BigDecimal;
 public class ExamResult {
     @Id  // Add this annotation to designate the primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "result_id")// Optional, but recommended for auto-incrementing IDs
     private Long resultId;  // Unique identifier for each exam result
 
@@ -32,7 +34,10 @@ public class ExamResult {
     private double score;        // Percentage score for the exam
 
     @Column(name = "status", nullable = false)
-    private String status;            // Pass or Fail
+    private String status;
+
+    @Column(name = "Date_Time", nullable = false)
+    private LocalDateTime submissionDateTime;
 
 }
 

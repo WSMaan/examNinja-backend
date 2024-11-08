@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +28,8 @@ public class ExamResultRepositoryTest {
     public void testFindById_ShouldReturnExamResult_WhenIdExists() {
         // Arrange
         Long resultId = 1L;
-        ExamResult examResult = new ExamResult(resultId, 101L, 1001L, 85.5, "PASS");
+        LocalDateTime submissionDateTime = LocalDateTime.now();
+        ExamResult examResult = new ExamResult(resultId, 101L, 1001L, 85.5, "PASS", submissionDateTime);
         when(examResultRepository.findById(resultId)).thenReturn(Optional.of(examResult));
 
         // Act
@@ -36,6 +38,7 @@ public class ExamResultRepositoryTest {
         // Assert
         assertTrue(result.isPresent());
         assertEquals(examResult, result.get());
+        assertEquals(submissionDateTime, result.get().getSubmissionDateTime());
     }
 
     @Test
@@ -54,8 +57,9 @@ public class ExamResultRepositoryTest {
     @Test
     public void testSave_ShouldPersistExamResult() {
         // Arrange
-        ExamResult examResult = new ExamResult(null, 101L, 1001L, 90.0, "FAIL");
-        ExamResult savedExamResult = new ExamResult(1L, 101L, 1001L, 90.0, "FAIL");
+        LocalDateTime submissionDateTime = LocalDateTime.now();
+        ExamResult examResult = new ExamResult(null, 101L, 1001L, 90.0, "FAIL", submissionDateTime);
+        ExamResult savedExamResult = new ExamResult(1L, 101L, 1001L, 90.0, "FAIL", submissionDateTime);
         when(examResultRepository.save(examResult)).thenReturn(savedExamResult);
 
         // Act
@@ -65,5 +69,6 @@ public class ExamResultRepositoryTest {
         assertEquals(1L, result.getResultId());
         assertEquals("FAIL", result.getStatus());
         assertEquals(90.0, result.getScore());
+        assertEquals(submissionDateTime, result.getSubmissionDateTime());
     }
 }

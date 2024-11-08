@@ -24,6 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,8 +83,14 @@ public class ExamResultServiceTest {
             mockQuestion(101L, "A");
             mockQuestion(102L, "B");
 
+
+
+            LocalDate currentDate = LocalDate.now();
+            LocalTime currentTime = LocalTime.now();
+
+
             // Prepare the request and call the service method
-            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null);
+            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L,null,currentDate,currentTime);
             ExamResultResponse response = examResultService.processSubmittedTest(request);
 
             // Assertions
@@ -105,7 +113,10 @@ public class ExamResultServiceTest {
                 mockQuestion(101L, "A");
             mockQuestion(102L, "B");
 
-            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null);
+                LocalDate currentDate = LocalDate.now();
+                LocalTime currentTime = LocalTime.now();
+
+            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null, currentDate, currentTime);
             ExamResultResponse response = examResultService.processSubmittedTest(request);
 
             assertEquals(50, response.getScore());
@@ -125,7 +136,10 @@ public class ExamResultServiceTest {
                 mockQuestion(101L, "A");
             mockQuestion(102L, "B");
 
-            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null);
+                LocalDate currentDate = LocalDate.now();
+                LocalTime currentTime = LocalTime.now();
+
+            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null, currentDate, currentTime);
             ExamResultResponse response = examResultService.processSubmittedTest(request);
 
             assertEquals(0, response.getScore());
@@ -140,8 +154,10 @@ public class ExamResultServiceTest {
             try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
                 mockedStatic.when(AnswerService::getAllAnswers).thenReturn(new HashMap<>());
 
+                LocalDate currentDate = LocalDate.now();
+                LocalTime currentTime = LocalTime.now();
 
-                ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null);
+                ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null, currentDate, currentTime);
 
             Exception exception = assertThrows(InvalidExamDataException.class, () -> {
                 examResultService.processSubmittedTest(request);
@@ -157,7 +173,10 @@ public class ExamResultServiceTest {
             try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
                 mockedStatic.when(AnswerService::getAllAnswers).thenReturn(new HashMap<>());
 
-            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null);
+                LocalDate currentDate = LocalDate.now();
+                LocalTime currentTime = LocalTime.now();
+
+            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null, currentDate, currentTime);
             Exception exception = assertThrows(InvalidExamDataException.class, () -> {
                 examResultService.processSubmittedTest(request);
             });
@@ -171,8 +190,10 @@ public class ExamResultServiceTest {
                 mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
 
             when(questionRepository.findById(999L)).thenReturn(Optional.empty());
+                LocalDate currentDate = LocalDate.now();
+                LocalTime currentTime = LocalTime.now();
 
-            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null);
+            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null, currentDate,currentTime);
             Exception exception = assertThrows(QuestionNotFoundException.class, () -> {
                 examResultService.processSubmittedTest(request);
             });
@@ -191,7 +212,10 @@ public class ExamResultServiceTest {
             // Simulate a database exception when saving ExamResultDetail
             doThrow(new RuntimeException("Database error")).when(examResultDetailRepository).save(any(ExamResultDetail.class));
 
-            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null);
+
+                LocalDate currentDate = LocalDate.now();
+                LocalTime currentTime = LocalTime.now();
+            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, 1L, null,currentDate, currentTime);
 
             // Expecting an exception to be thrown
             Exception exception = assertThrows(ExamDataBaseOperationException.class, () -> {

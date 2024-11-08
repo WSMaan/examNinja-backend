@@ -20,6 +20,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,53 +42,59 @@ public class ExamResultService {
     @Autowired
     private ExamResultRepository examResultRepository;
 
-    public ExamResultResponse processSubmittedTest(ExamSubmissionRequest request) {
-        Long testId = request.getTestId();
-        Long userId = request.getId();
+   public ExamResultResponse processSubmittedTest(ExamSubmissionRequest request) {
+       Long testId = request.getTestId();
+       Long userId = request.getId();
 
-        // Fetch all answers from AnswerService
-        Map<String, String> allAnswers = answerService.getAllAnswers();
-        if (allAnswers.isEmpty()) {
-            throw new InvalidExamDataException("No answers found for the user.");
-        }
+       // Combine submissionDate and submissionTime from request
+       LocalDate submissionDate = request.getSubmissionDate();
+       LocalTime submissionTime = request.getSubmissionTime();
+       LocalDateTime submissionDateTime = LocalDateTime.of(submissionDate, submissionTime);
 
-        // Filter answers for the specific student and test
-        Map<Long, String> studentTestAnswers = filterStudentTestAnswers(allAnswers, userId, testId);
+       // Fetch all answers from AnswerService
+       Map<String, String> allAnswers = answerService.getAllAnswers();
+       if (allAnswers.isEmpty()) {
+           throw new InvalidExamDataException("No answers found for the user.");
+       }
 
-        // Process answers and calculate the result
-        int totalQuestions = studentTestAnswers.size();
-        int correctAnswers = 0;
+       // Filter answers for the specific student and test
+       Map<Long, String> studentTestAnswers = filterStudentTestAnswers(allAnswers, userId, testId);
 
-        if (totalQuestions == 0) {
-            // If there are no answers, return a score of 0 and fail status
-            return new ExamResultResponse(testId, userId, 0, 65, "FAIL");
-        }
+       // Process answers and calculate the result
+       int totalQuestions = studentTestAnswers.size();
+       int correctAnswers = 0;
 
-        // Reuse the logic to save results and get the count of correct answers
-        correctAnswers = saveCompareAndStoreAnswer(studentTestAnswers, testId, userId);
+       if (totalQuestions == 0) {
+           // If there are no answers, return a score of 0 and fail status
+           return new ExamResultResponse(testId, userId, 0, 65, "FAIL");
+       }
 
-        // Calculate percentage
-        double percentage = ((double) correctAnswers / totalQuestions) * 100;
-        String status = (percentage >= 65) ? "PASS" : "FAIL";
+       // Reuse the logic to save results and get the count of correct answers
+       correctAnswers = saveCompareAndStoreAnswer(studentTestAnswers, testId, userId, submissionDateTime);
 
-        // Save summary result
-        ExamResult summaryResult = new ExamResult();
-        summaryResult.setTestId(testId);
-        summaryResult.setId(userId);
-        summaryResult.setScore(percentage);
-        summaryResult.setStatus(status);
+       // Calculate percentage
+       double percentage = ((double) correctAnswers / totalQuestions) * 100;
+       String status = (percentage >= 65) ? "PASS" : "FAIL";
 
-        try {
-            examResultRepository.save(summaryResult);
-        } catch (Exception e) {
-            throw new ExamDataBaseOperationException("Failed to save exam result: " + e.getMessage());
-        }
+       // Save summary result
+       ExamResult summaryResult = new ExamResult();
+       summaryResult.setTestId(testId);
+       summaryResult.setId(userId);
+       summaryResult.setScore(percentage);
+       summaryResult.setStatus(status);
+       summaryResult.setSubmissionDateTime(submissionDateTime);
 
-        // Return response
-        return new ExamResultResponse(testId, userId, (int) percentage, 65, status);
-    }
+       try {
+           examResultRepository.save(summaryResult);
+       } catch (Exception e) {
+           throw new ExamDataBaseOperationException("Failed to save exam result: " + e.getMessage());
+       }
 
-    private int saveCompareAndStoreAnswer(Map<Long, String> studentTestAnswers, Long testId, Long userId) {
+
+       return new ExamResultResponse(testId, userId, (int) percentage, 65, status);
+   }
+
+    private int saveCompareAndStoreAnswer(Map<Long, String> studentTestAnswers, Long testId, Long userId, LocalDateTime submissionDateTime) {
         int correctAnswers = 0;
 
         for (Map.Entry<Long, String> entry : studentTestAnswers.entrySet()) {
@@ -108,6 +117,7 @@ public class ExamResultService {
             resultDetail.setQuestionId(questionId);
             resultDetail.setSubmittedAnswer(submittedAnswer);
             resultDetail.setCorrectAnswer(correctAnswer);
+            resultDetail.setSubmissionDateTime(submissionDateTime);
 
             try {
                 examResultDetailRepository.save(resultDetail);
