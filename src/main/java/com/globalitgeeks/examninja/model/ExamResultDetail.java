@@ -30,7 +30,7 @@ public class ExamResultDetail {
         private String submittedAnswer;  // The student's submitted answer for the question
         @Column(name = "correct_answer", nullable = false)  // Field to store the correct answer
         private String correctAnswer;  // The correct answer for the question
-        @Column(name = "Date_Time", nullable = false)
+        @Column(name = "date_time", nullable = false)
         private LocalDateTime submissionDateTime;
 
 
