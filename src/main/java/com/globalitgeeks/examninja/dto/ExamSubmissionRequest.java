@@ -18,13 +18,7 @@ public class ExamSubmissionRequest {
     @NotNull(message = "Test ID cannot be null")
     private Long testId;
 
-    private Long id;
+    private LocalDateTime submissionDateTime;
 
-    @NotEmpty(message = "Answers cannot be empty")
-    private List<AnswerDTO> answers;
-
-    private LocalDate submissionDate;
-
-    private LocalTime submissionTime;
 }
 

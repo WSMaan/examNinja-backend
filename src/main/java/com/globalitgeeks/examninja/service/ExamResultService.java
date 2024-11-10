@@ -42,14 +42,14 @@ public class ExamResultService {
     @Autowired
     private ExamResultRepository examResultRepository;
 
-   public ExamResultResponse processSubmittedTest(ExamSubmissionRequest request) {
+    private static final int pass_Marks_Cut_Off = 65;
+
+   public ExamResultResponse processSubmittedTest(ExamSubmissionRequest request,Long userId) {
        Long testId = request.getTestId();
-       Long userId = request.getId();
+       Long ExtractedUserId = userId;
 
        // Combine submissionDate and submissionTime from request
-       LocalDate submissionDate = request.getSubmissionDate();
-       LocalTime submissionTime = request.getSubmissionTime();
-       LocalDateTime submissionDateTime = LocalDateTime.of(submissionDate, submissionTime);
+       LocalDateTime submissionDateTime = request.getSubmissionDateTime();
 
        // Fetch all answers from AnswerService
        Map<String, String> allAnswers = answerService.getAllAnswers();
@@ -64,9 +64,10 @@ public class ExamResultService {
        int totalQuestions = studentTestAnswers.size();
        int correctAnswers = 0;
 
+
        if (totalQuestions == 0) {
            // If there are no answers, return a score of 0 and fail status
-           return new ExamResultResponse(testId, userId, 0, 65, "FAIL");
+           return new ExamResultResponse(testId, userId, 0, pass_Marks_Cut_Off, "FAIL");
        }
 
        // Reuse the logic to save results and get the count of correct answers
@@ -74,7 +75,7 @@ public class ExamResultService {
 
        // Calculate percentage
        double percentage = ((double) correctAnswers / totalQuestions) * 100;
-       String status = (percentage >= 65) ? "PASS" : "FAIL";
+       String status = (percentage >= pass_Marks_Cut_Off) ? "PASS" : "FAIL";
 
        // Save summary result
        ExamResult summaryResult = new ExamResult();
@@ -91,7 +92,7 @@ public class ExamResultService {
        }
 
 
-       return new ExamResultResponse(testId, userId, (int) percentage, 65, status);
+       return new ExamResultResponse(testId, userId, (int) percentage, pass_Marks_Cut_Off, status);
    }
 
     private int saveCompareAndStoreAnswer(Map<Long, String> studentTestAnswers, Long testId, Long userId, LocalDateTime submissionDateTime) {

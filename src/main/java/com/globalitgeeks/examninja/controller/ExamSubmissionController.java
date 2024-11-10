@@ -35,15 +35,11 @@ public class ExamSubmissionController {
 
         Long userId = jwtUtil.extractUserId(token);
 
-        if (request.getTestId() == null || request.getAnswers() == null || request.getAnswers().isEmpty()) {
-            throw new InvalidExamRequestException("Request is missing required fields: testId or answers.");
+        if (request.getTestId() == null ) {
+           throw new InvalidExamRequestException("Request is missing required fields: testId or answers.");
         }
 
-        // Update request with extracted userId from JWT
-        request.setId(userId);
-
-
-        ExamResultResponse response = examResultService.processSubmittedTest(request);
+        ExamResultResponse response = examResultService.processSubmittedTest(request,userId);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

@@ -49,7 +49,7 @@ public class ExamSubmissionControllerTest {
         ExamResultResponse expectedResponse = new ExamResultResponse(1L, MOCK_USER_ID, 100, 65, "PASS");
 
         when(jwtUtil.extractUserId(TOKEN)).thenReturn(MOCK_USER_ID);
-        when(examResultService.processSubmittedTest(request)).thenReturn(expectedResponse);
+        when(examResultService.processSubmittedTest(request,MOCK_USER_ID)).thenReturn(expectedResponse);
 
         // Act
         ResponseEntity<ExamResultResponse> response = examSubmissionController.submitTest(request, TOKEN);
@@ -57,11 +57,11 @@ public class ExamSubmissionControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
-        verify(examResultService, times(1)).processSubmittedTest(request);
+        verify(examResultService, times(1)).processSubmittedTest(request,MOCK_USER_ID);
     }
 
     @Test
-    public void testSubmitTest_MissingFields() {
+   public void testSubmitTest_MissingFields() {
         // Arrange
         ExamSubmissionRequest request = new ExamSubmissionRequest(); // Empty request
 
@@ -93,7 +93,7 @@ public class ExamSubmissionControllerTest {
         // Arrange
         ExamSubmissionRequest request = createValidRequest();
         when(jwtUtil.extractUserId(TOKEN)).thenReturn(MOCK_USER_ID);
-        when(examResultService.processSubmittedTest(any()))
+        when(examResultService.processSubmittedTest(any(),anyLong()))
                 .thenThrow(new InvalidExamRequestException("Invalid Test Id"));
 
         // Act & Assert
@@ -108,15 +108,16 @@ public class ExamSubmissionControllerTest {
         // Arrange
         ExamSubmissionRequest request = createValidRequest();
         when(jwtUtil.extractUserId(TOKEN)).thenReturn(MOCK_USER_ID);
-        when(examResultService.processSubmittedTest(any()))
+        when(examResultService.processSubmittedTest(any(), anyLong()))
                 .thenThrow(new RuntimeException("Processing Error"));
+
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             examSubmissionController.submitTest(request, TOKEN);
         });
         assertEquals("Processing Error", exception.getMessage());
-        verify(examResultService, times(1)).processSubmittedTest(request);
+        verify(examResultService, times(1)).processSubmittedTest(request, MOCK_USER_ID);
     }
 
     @Test
@@ -126,7 +127,7 @@ public class ExamSubmissionControllerTest {
         ExamResultResponse expectedResponse = new ExamResultResponse(1L, MOCK_USER_ID, 100, 65, "PASS");
 
         when(jwtUtil.extractUserId(TOKEN)).thenReturn(MOCK_USER_ID);
-        when(examResultService.processSubmittedTest(request)).thenReturn(expectedResponse);
+        when(examResultService.processSubmittedTest(request,MOCK_USER_ID)).thenReturn(expectedResponse);
 
         // Act
         ResponseEntity<ExamResultResponse> response = examSubmissionController.submitTest(request, TOKEN);
@@ -135,14 +136,11 @@ public class ExamSubmissionControllerTest {
         assertEquals("application/json", response.getHeaders().getContentType().toString());
     }
 
+
     // Helper method to create a valid request
     private ExamSubmissionRequest createValidRequest() {
         ExamSubmissionRequest request = new ExamSubmissionRequest();
         request.setTestId(1L);
-        List<AnswerDTO> answers = new ArrayList<>();
-        answers.add(new AnswerDTO(1L, "A"));
-        answers.add(new AnswerDTO(2L, "B"));
-        request.setAnswers(answers);
         return request;
     }
 }
