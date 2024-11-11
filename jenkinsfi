@@ -19,7 +19,7 @@ pipeline {
         stage('Build Project') {
             steps {
                 dir(BACKEND_DIR) {
-                    bat 'mvn clean install' // Adjusted for Windows Jenkins agent
+                    bat 'mv clean install' // Adjusted for Windows Jenkins agent
                 }
             }
             post {
