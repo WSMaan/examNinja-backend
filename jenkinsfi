@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    environment {
+        BACKEND_DIR = 'backend'
+        FAILURE_REASON = ''  // To capture failure reason
+        ELASTICSEARCH_HOST = 'localhost' // Elasticsearch host (running alongside Kibana)
+        ELASTICSEARCH_PORT = '9200'      // Elasticsearch default port
+        ELASTICSEARCH_INDEX = 'jenkins-pipeline-logs' // Elasticsearch index for logs
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                dir(BACKEND_DIR) {
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
+                }
+            }
+        }
+
+        stage('Build Project') {
+            steps {
+                dir(BACKEND_DIR) {
+                    sh 'mvn clean install' // Use `bat` if on Windows Jenkins agent
+                }
+            }
+            post {
+                failure {
+                    script {
+                        env.FAILURE_REASON = 'Build Project'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Log the pipeline result to Elasticsearch for Kibana to visualize
+                def logData = [
+                    timestamp     : new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC')),
+                    pipeline_name : env.JOB_NAME,
+                    build_number  : env.BUILD_NUMBER,
+                    status        : currentBuild.result ?: 'SUCCESS',
+                    failure_reason: env.FAILURE_REASON
+                ]
+                writeFile file: 'pipeline_log.json', text: groovy.json.JsonOutput.toJson(logData)
+
+                // Replace <username> and <password> if basic auth is required, or omit -u entirely if not needed
+                sh "curl -X POST 'http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}/${ELASTICSEARCH_INDEX}/_doc/' -H 'Content-Type: application/json' -d @pipeline_log.json"
+            }
+            cleanWs()
+        }
+        failure {
+            script {
+                echo "Pipeline failed during the ${env.FAILURE_REASON} stage."
+            }
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+    }
+}
