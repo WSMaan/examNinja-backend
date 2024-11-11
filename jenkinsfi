@@ -19,7 +19,7 @@ pipeline {
         stage('Build Project') {
             steps {
                 dir(BACKEND_DIR) {
-                    sh 'mvn clean install' // Use `bat` if on Windows Jenkins agent
+                    bat 'mvn clean install' // Adjusted for Windows Jenkins agent
                 }
             }
             post {
@@ -45,8 +45,8 @@ pipeline {
                 ]
                 writeFile file: 'pipeline_log.json', text: groovy.json.JsonOutput.toJson(logData)
 
-                // Replace <username> and <password> if basic auth is required, or omit -u entirely if not needed
-                sh "curl -X POST 'http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}/${ELASTICSEARCH_INDEX}/_doc/' -H 'Content-Type: application/json' -d @pipeline_log.json"
+                // Elasticsearch POST request adjusted for Windows
+                bat "curl -X POST \"http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}/${ELASTICSEARCH_INDEX}/_doc/\" -H \"Content-Type: application/json\" -d @pipeline_log.json"
             }
             cleanWs()
         }
