@@ -9,17 +9,24 @@ import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class StoreAnswer {
 
     private Long testId;
     private Long questionId;
-    private String selectedOption;
-    }
+    private Option selectedOption;
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Option {
+        private String value;
+        private String label;
+    }
+}
 
 
 

@@ -11,13 +11,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExamSubmissionRequest {
     @NotNull(message = "Test ID cannot be null")
     private Long testId;
-
+    @NotNull(message = "LocalDateTime cannot be null")
     private LocalDateTime submissionDateTime;
 
 }

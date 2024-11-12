@@ -1,13 +1,13 @@
 package com.globalitgeeks.examninja.controller;
 
-import com.globalitgeeks.examninja.dto.ApiResponse;
-import com.globalitgeeks.examninja.dto.StoreAnswer;
+import com.globalitgeeks.examninja.dto.*;
 import com.globalitgeeks.examninja.model.Question;
-import com.globalitgeeks.examninja.dto.TestDto;
 import com.globalitgeeks.examninja.security.JwtUtil;
+import com.globalitgeeks.examninja.service.ExamResultService;
 import com.globalitgeeks.examninja.service.QuestionService;
 import com.globalitgeeks.examninja.service.AnswerService;
 import com.globalitgeeks.examninja.service.TestService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -29,6 +29,8 @@ public class TestController {
 
     @Autowired
     private JwtUtil jwtUtil; // Inject your JWT utility class
+    @Autowired
+    private ExamResultService examResultService;
 
     @GetMapping("/{testId}/questions")
     public ResponseEntity<Map<String, Object>> getQuestionByTestId(
@@ -56,12 +58,13 @@ public class TestController {
 
     @Autowired
     private AnswerService answerService;
+
     @PostMapping("/save")
-    public ResponseEntity<?> storeAnswer(@RequestBody StoreAnswer studentAnswerDTO, @RequestHeader("Authorization") String token){
+    public ResponseEntity<?> storeAnswer(@RequestBody StoreAnswer studentAnswerDTO, @RequestHeader("Authorization") String token) {
         Long extractedUserId = jwtUtil.extractUserId(token.replace("Bearer ", "")); // Extract user ID from token
         Long testId = studentAnswerDTO.getTestId();
         Long questionId = studentAnswerDTO.getQuestionId();
-        String selectedOption = studentAnswerDTO.getSelectedOption();
+        String selectedOption = studentAnswerDTO.getSelectedOption().getLabel();
 
         answerService.storeAnswer(extractedUserId, testId, questionId, selectedOption);
 
@@ -69,6 +72,22 @@ public class TestController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
+
+    @PostMapping("/submit")
+    public ResponseEntity<ExamResultResponse> submitTest(
+            @Valid @RequestBody ExamSubmissionRequest request,
+            @RequestHeader("Authorization") String token) {
+
+
+        Long userId = jwtUtil.extractUserId(token);
+
+
+        ExamResultResponse response = examResultService.processSubmittedTest(request, userId);
+
+        return ResponseEntity.ok()
+                .body(response);
+    }
+
 
 }
 

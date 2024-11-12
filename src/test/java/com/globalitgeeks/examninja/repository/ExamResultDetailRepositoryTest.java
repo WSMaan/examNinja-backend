@@ -35,8 +35,8 @@ class ExamResultDetailRepositoryTest {
         Long testId = 1L;
         LocalDateTime submissionDateTime = LocalDateTime.now();
         List<ExamResultDetail> examResultDetails = Arrays.asList(
-                new ExamResultDetail(1L, 1L, 1L, 1L, "A", "B", submissionDateTime),
-                new ExamResultDetail(2L, 1L, 2L, 2L, "B", "C",submissionDateTime)
+                new ExamResultDetail(1L, 1L, 1L, 1L, "A", "B"),
+                new ExamResultDetail(2L, 1L, 2L, 2L, "B", "C")
         );
         // Mock the repository behavior
         when(examResultDetailRepository.findByTestId(testId)).thenReturn(examResultDetails);
@@ -48,12 +48,13 @@ class ExamResultDetailRepositoryTest {
         assertEquals(2, result.size());
         assertEquals("A", result.get(0).getSubmittedAnswer());
     }
+
     @Test
     void testFindById_ShouldReturnOptional_WhenUserIdExists() {
         // Arrange
         Long userId = 1L;
         LocalDateTime submissionDateTime = LocalDateTime.now();
-        ExamResultDetail examResultDetail = new ExamResultDetail(1L, 1L, userId, 1L, "A", "B", submissionDateTime);
+        ExamResultDetail examResultDetail = new ExamResultDetail(1L, 1L, userId, 1L, "A", "B");
         // Mock the repository behavior
         when(examResultDetailRepository.findById(userId)).thenReturn(Optional.of(examResultDetail));
 
@@ -62,7 +63,7 @@ class ExamResultDetailRepositoryTest {
 
         // Assert
         assertTrue(result.isPresent());
-        assertEquals(submissionDateTime, result.get().getSubmissionDateTime());
+
     }
 
     @Test
@@ -71,8 +72,8 @@ class ExamResultDetailRepositoryTest {
         Long questionId = 1L;
         LocalDateTime submissionDateTime = LocalDateTime.now();
         List<ExamResultDetail> examResultDetails = Arrays.asList(
-                new ExamResultDetail(1L, 1L, 1L, questionId, "A", "B", submissionDateTime),
-                new ExamResultDetail(2L, 1L, 2L, questionId, "C", "D", submissionDateTime)
+                new ExamResultDetail(1L, 1L, 1L, questionId, "A", "B"),
+                new ExamResultDetail(2L, 1L, 2L, questionId, "C", "D")
         );
         // Mock the repository behavior
         when(examResultDetailRepository.findByQuestionId(questionId)).thenReturn(examResultDetails);
@@ -82,6 +83,6 @@ class ExamResultDetailRepositoryTest {
 
         // Assert
         assertEquals(2, result.size());
-        assertEquals(submissionDateTime, result.get(0).getSubmissionDateTime());
+
     }
 }
