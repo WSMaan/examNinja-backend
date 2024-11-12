@@ -23,7 +23,7 @@ public class ExamResult {
     @Column(name = "result_id")// Optional, but recommended for auto-incrementing IDs
     private Long resultId;  // Unique identifier for each exam result
 
-    @Column(name = "test_id",nullable = false)
+    @Column(name = "test_id", nullable = false)
     private Long testId;
 
 
@@ -36,7 +36,7 @@ public class ExamResult {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "Date_Time", nullable = false)
+    @Column(name = "date_time", nullable = false)
     private LocalDateTime submissionDateTime;
 
 }

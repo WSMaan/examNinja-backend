@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ExamResultResponse {
     private Long testId;
     private Long Id;
-    private int score;
+    private double score;
     private int passingScore;
     private String status;
 }

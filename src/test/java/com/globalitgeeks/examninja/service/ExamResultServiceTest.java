@@ -1,5 +1,5 @@
-package com.globalitgeeks.examninja.service;
 
+package com.globalitgeeks.examninja.service;
 
 
 import com.globalitgeeks.examninja.ExamNinjaApplication;
@@ -32,7 +32,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-
 
 
 //@SpringBootTest(classes = ExamNinjaApplication.class)
@@ -75,27 +74,26 @@ public class ExamResultServiceTest {
     public void testProcessSubmittedTest_CorrectlyCalculatesPercentage() {
         answersMap.put("1-1-101", "A");
         answersMap.put("1-1-102", "B");
-
         // Mock the static method getAllAnswers using try-with-resources
         try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
             mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
 
-            // Mock questions
+            // Mock Question count
+            when(questionRepository.countByTestId(1L)).thenReturn(2L);
+
+            // Mock questions with incorrect answers for the test case
             mockQuestion(101L, "A");
             mockQuestion(102L, "B");
 
-
             LocalDateTime currentDateTime = LocalDateTime.now();
-            //LocalTime currentTime = LocalTime.now();
             Long userId = 1L;
-
 
             // Prepare the request and call the service method
             ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
             ExamResultResponse response = examResultService.processSubmittedTest(request, userId);
 
             // Assertions
-            assertEquals(100, response.getScore());
+            assertEquals(100.0, response.getScore(), 0.01);  // Use delta for floating point comparison
             assertEquals("PASS", response.getStatus());
 
             // Verify saving results
@@ -103,20 +101,22 @@ public class ExamResultServiceTest {
         }
     }
 
+    @Test
+    public void testProcessSubmittedTest_HalfCorrectAnswers() {
+        answersMap.put("1-1-101", "A");
+        answersMap.put("1-1-102", "C");
+        try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
+            mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
 
-       @Test
-        public void testProcessSubmittedTest_HalfCorrectAnswers () {
-            answersMap.put("1-1-101", "A");
-            answersMap.put("1-1-102", "C");
-            try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
-                mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
+            // Mock Question count
+            when(questionRepository.countByTestId(1L)).thenReturn(2L);
 
 
-                mockQuestion(101L, "A");
+            mockQuestion(101L, "A");
             mockQuestion(102L, "B");
 
-                LocalDateTime currentDateTime = LocalDateTime.now();
-                  Long userId = 1L;
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            Long userId = 1L;
 
 
             ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
@@ -126,22 +126,27 @@ public class ExamResultServiceTest {
             assertEquals("FAIL", response.getStatus());
 
             verifySavingResults(2);
-        }}
-
-        @Test
-        public void testProcessSubmittedTest_NoCorrectAnswers () {
-            answersMap.put("1-1-101", "C");
-            answersMap.put("1-1-102", "D");
-            try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
-                mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
+        }
+    }
 
 
-                mockQuestion(101L, "A");
+    @Test
+    public void testProcessSubmittedTest_NoCorrectAnswers() {
+        answersMap.put("1-1-101", "C");
+        answersMap.put("1-1-102", "D");
+        try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
+            mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
+
+            // Mock Question count
+            when(questionRepository.countByTestId(1L)).thenReturn(2L);
+
+
+            mockQuestion(101L, "A");
             mockQuestion(102L, "B");
 
 
-                   LocalDateTime currentDateTime = LocalDateTime.now();
-                  Long userId = 1L;
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            Long userId = 1L;
 
             ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
             ExamResultResponse response = examResultService.processSubmittedTest(request, userId);
@@ -150,18 +155,20 @@ public class ExamResultServiceTest {
             assertEquals("FAIL", response.getStatus());
 
             verifySavingResults(2);
-        }}
+        }
+    }
 
-        @Test
-        public void testProcessSubmittedTest_NoAnswers () {
 
-            try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
-                mockedStatic.when(AnswerService::getAllAnswers).thenReturn(new HashMap<>());
+    @Test
+    public void testProcessSubmittedTest_NoAnswers() {
 
-                LocalDateTime currentDateTime = LocalDateTime.now();
-                  Long userId = 1L;
+        try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
+            mockedStatic.when(AnswerService::getAllAnswers).thenReturn(new HashMap<>());
 
-                ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            Long userId = 1L;
+
+            ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
 
             Exception exception = assertThrows(InvalidExamDataException.class, () -> {
                 examResultService.processSubmittedTest(request, userId);
@@ -170,46 +177,59 @@ public class ExamResultServiceTest {
             assertEquals("No answers found for the user.", exception.getMessage());
 
             verify(examResultRepository, never()).save(any(ExamResult.class));
-        }}
-
-        @Test
-        public void testProcessSubmittedTest_InvalidExamDataException () {
-            try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
-                mockedStatic.when(AnswerService::getAllAnswers).thenReturn(new HashMap<>());
+        }
+    }
 
 
-                 LocalDateTime currentDateTime = LocalDateTime.now();
-                  Long userId = 1L;
+    @Test
+    public void testProcessSubmittedTest_InvalidExamDataException() {
+        try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
+            mockedStatic.when(AnswerService::getAllAnswers).thenReturn(new HashMap<>());
+
+
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            Long userId = 1L;
 
             ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
             Exception exception = assertThrows(InvalidExamDataException.class, () -> {
                 examResultService.processSubmittedTest(request, userId);
             });
             assertEquals("No answers found for the user.", exception.getMessage());
-        }}
+        }
+    }
 
-        @Test
-        public void testProcessSubmittedTest_QuestionNotFoundException () {
-            answersMap.put("1-1-999", "A"); // Invalid question ID
-            try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
-                mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
 
+    @Test
+    public void testProcessSubmittedTest_QuestionNotFoundException() {
+        answersMap.put("1-1-999", "A"); // Ensure correct IDs are used
+
+        try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
+            mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
+
+            // Simulate questionRepository returning empty for question ID 999
             when(questionRepository.findById(999L)).thenReturn(Optional.empty());
-                  LocalDateTime currentDateTime = LocalDateTime.now();
-                  Long userId = 1L;
 
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            Long userId = 1L;
+
+            // Request with matching testId
             ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
+
+            // Check that QuestionNotFoundException is thrown
             Exception exception = assertThrows(QuestionNotFoundException.class, () -> {
                 examResultService.processSubmittedTest(request, userId);
             });
-            assertEquals("Question not found: 999", exception.getMessage());
-        }}
 
-        @Test
-        public void testProcessSubmittedTest_ExamResultDetailDatabaseOperationException () {
-            answersMap.put("1-1-101", "A");
-            try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
-                mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
+            assertEquals("Question not found: 999", exception.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testProcessSubmittedTest_ExamResultDetailDatabaseOperationException() {
+        answersMap.put("1-1-101", "A");
+        try (MockedStatic<AnswerService> mockedStatic = Mockito.mockStatic(AnswerService.class)) {
+            mockedStatic.when(AnswerService::getAllAnswers).thenReturn(answersMap);
 
             // Mock question to return
             mockQuestion(101L, "A");
@@ -217,8 +237,8 @@ public class ExamResultServiceTest {
             // Simulate a database exception when saving ExamResultDetail
             doThrow(new RuntimeException("Database error")).when(examResultDetailRepository).save(any(ExamResultDetail.class));
 
-                  LocalDateTime currentDateTime = LocalDateTime.now();
-                  Long userId = 1L;
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            Long userId = 1L;
             ExamSubmissionRequest request = new ExamSubmissionRequest(1L, currentDateTime);
 
             // Expecting an exception to be thrown
@@ -228,5 +248,5 @@ public class ExamResultServiceTest {
 
             assertEquals("Failed to save exam result detail: Database error", exception.getMessage());
         }
-    }}
-
+    }
+}
