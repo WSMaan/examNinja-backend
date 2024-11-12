@@ -5,7 +5,7 @@ metadata:
   labels:
     app: backend
 spec:
-  replicas: 3 # Number of backend instances
+  replicas: 3  # Number of backend instances
   selector:
     matchLabels:
       app: backend
@@ -21,13 +21,13 @@ spec:
         - containerPort: 8081
         env:
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:mysql://mysql-container:3306/exam"  # Updated DB URL
+          value: "jdbc:mysql://mysql-deployment:3306/exam_ninja"  # Use the actual MySQL service name here
         - name: SPRING_DATASOURCE_USERNAME
-          value: "root"  # Updated DB username
+          value: "root"
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "root@123"  # Updated DB password
+          value: "root@123"
         - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-          value: "com.mysql.cj.jdbc.Driver"  # Added driver class name
+          value: "com.mysql.cj.jdbc.Driver"
 ---
 apiVersion: v1
 kind: Service
