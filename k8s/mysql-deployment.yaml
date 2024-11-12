@@ -41,7 +41,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: "/mnt/data"  # You can update this path to suit your environment
+    path: "/mnt/data"  # Adjust the path as per your environment
 
 ---
 apiVersion: v1
@@ -64,7 +64,7 @@ spec:
   selector:
     app: mysql
   ports:
-  - protocol: TCP
-    port: 3306
-    targetPort: 3306
-  clusterIP: None  # ClusterIP set to None to make the service accessible within the cluster by DNS name
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  clusterIP: None
