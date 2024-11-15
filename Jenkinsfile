@@ -5,8 +5,6 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = ''  // Ensure credentials are set
-        AWS_SECRET_ACCESS_KEY = ''
         BACKEND_DIR = 'backend'
         FAILURE_REASON = ''  // To capture failure reason
         S3_BUCKET_NAME = 'examninja'
@@ -62,22 +60,28 @@ pipeline {
         
         stage('Push Docker Images to ECR') {
             steps {
-                sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
-                sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest'
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                    sh '''
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest
+                    '''
+                }
             }
         }
 
         stage('Upload Reports to S3') {
             steps {
-                dir(BACKEND_DIR) {
-                    sh '''
-                    if [ -d ${REPORTS_DIR} ]; then
-                        echo "Uploading Surefire HTML reports to S3 bucket: ${S3_BUCKET_NAME}"
-                        aws s3 sync ${REPORTS_DIR} s3://${S3_BUCKET_NAME}/jenkins-reports/backend --region ${AWS_REGION}
-                    else
-                        echo "No reports found to upload."
-                    fi
-                    '''
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                    dir(BACKEND_DIR) {
+                        sh '''
+                        if [ -d ${REPORTS_DIR} ]; then
+                            echo "Uploading Surefire HTML reports to S3 bucket: ${S3_BUCKET_NAME}"
+                            aws s3 sync ${REPORTS_DIR} s3://${S3_BUCKET_NAME}/jenkins-reports/backend --region ${AWS_REGION}
+                        else
+                            echo "No reports found to upload."
+                        fi
+                        '''
+                    }
                 }
             }
         }
@@ -85,7 +89,9 @@ pipeline {
         // Uncomment if deploying to EKS
         // stage('Deploy to EKS') {
         //     steps {
-        //         sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
+        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+        //             sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
+        //         }
         //         dir(BACKEND_DIR) {
         //             sh 'kubectl apply -f k8s/backend-deployment.yaml'
         //         }
