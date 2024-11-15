@@ -40,7 +40,7 @@ public class ExamResultService {
         Long testId = request.getTestId();
         LocalDateTime submissionDateTime = request.getSubmissionDateTime();
 
-        Map<String, String> allAnswers = answerService.getAllAnswers();
+        Map<String, Map<String,String>> allAnswers = answerService.getAllAnswers();
         if (allAnswers.isEmpty()) {
             throw new InvalidExamDataException("No answers found for the user.");
         }
@@ -66,7 +66,7 @@ public class ExamResultService {
             throw new ExamDataBaseOperationException("Failed to save exam result: " + e.getMessage());
         }
 
-        return new ExamResultResponse(testId, userId, percentage, pass_Marks_Cut_Off, status);
+        return new ExamResultResponse(testId, percentage, pass_Marks_Cut_Off, status);
     }
 
     private int saveCompareAndStoreAnswer(Map<Long, String> studentTestAnswers, Long testId, Long userId, LocalDateTime submissionDateTime) {
@@ -107,7 +107,7 @@ public class ExamResultService {
         return correctAnswers;
     }
 
-    private Map<Long, String> filterStudentTestAnswers(Map<String, String> allAnswers, Long userId, Long testId) {
+    private Map<Long, String> filterStudentTestAnswers(Map<String, Map<String, String>> allAnswers, Long userId, Long testId) {
         Map<Long, String> studentTestAnswers = new HashMap<>();
         allAnswers.forEach((key, value) -> {
             String[] keyParts = key.split("-");
@@ -116,7 +116,9 @@ public class ExamResultService {
             Long questionId = Long.parseLong(keyParts[2]);
 
             if (storedUserId.equals(userId) && storedTestId.equals(testId)) {
-                studentTestAnswers.put(questionId, value);
+                String selectedAnswer = value.get("label");
+                studentTestAnswers.put(questionId, selectedAnswer);
+                System.out.println(selectedAnswer);
             }
         });
 

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class ExamResultResponse {
     private Long testId;
-    private Long Id;
     private double score;
     private int passingScore;
     private String status;

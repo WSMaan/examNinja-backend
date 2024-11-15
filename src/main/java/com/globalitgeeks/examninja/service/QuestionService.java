@@ -77,8 +77,8 @@ public class QuestionService {
             questionDetails.put("testId", question.getTestId());
 
             // Get previously selected option if available
-            String selectedOption = AnswerService.getAnswer(userId, testId, question.getQuestionId());
-            questionDetails.put("selectedOption", selectedOption != null ? selectedOption : null);
+            Map<String, String> selectedOption = AnswerService.getAnswer(userId, testId, question.getQuestionId());
+            response.put("selectedOption", selectedOption != null ? selectedOption : null);
 
             return questionDetails;
         }).toList();

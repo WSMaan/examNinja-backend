@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.globalitgeeks.examninja.service.AnswerService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 class AnswerServiceTest {
@@ -23,13 +24,14 @@ class AnswerServiceTest {
         Long userId = 1L;
         Long testId = 101L;
         Long questionId = 1001L;
-        String selectedOption = "Option A";
+        Map<String, String> selectedOption  = new HashMap<>();
+        selectedOption.put("option", "Option A");
 
         // Act - Store a new answer
         answerService.storeAnswer(userId, testId, questionId, selectedOption);
 
         // Assert - Verify that the answer was stored correctly
-        String storedAnswer = AnswerService.getAnswer(userId, testId, questionId);
+        Map<String, String> storedAnswer = AnswerService.getAnswer(userId, testId, questionId);
         assertNotNull(storedAnswer);
         assertEquals(selectedOption, storedAnswer);
     }
@@ -40,8 +42,10 @@ class AnswerServiceTest {
         Long userId = 2L;
         Long testId = 102L;
         Long questionId = 1002L;
-        String initialOption = "Option B";
-        String updatedOption = "Option C";
+        Map<String, String> initialOption = new HashMap<>();
+        initialOption.put("option", "Option B");
+        Map<String, String> updatedOption = new HashMap<>();
+        updatedOption.put("option", "Option C");
 
         // Act - Store an initial answer
         answerService.storeAnswer(userId, testId, questionId, initialOption);
@@ -49,7 +53,7 @@ class AnswerServiceTest {
         answerService.storeAnswer(userId, testId, questionId, updatedOption);
 
         // Assert - Verify that the answer was updated correctly
-        String storedAnswer = AnswerService.getAnswer(userId, testId, questionId);
+        Map<String, String> storedAnswer = AnswerService.getAnswer(userId, testId, questionId);
         assertNotNull(storedAnswer);
         assertEquals(updatedOption, storedAnswer);
     }
@@ -60,19 +64,21 @@ class AnswerServiceTest {
         Long userId1 = 1L;
         Long testId1 = 201L;
         Long questionId1 = 2001L;
-        String selectedOption1 = "Option D";
+        Map<String, String> selectedOption1 = new HashMap<>();
+        selectedOption1.put("option", "Option D");
 
         Long userId2 = 2L;
         Long testId2 = 202L;
         Long questionId2 = 2002L;
-        String selectedOption2 = "Option E";
+        Map<String, String> selectedOption2 = new HashMap<>();
+        selectedOption2.put("option", "Option E");
 
         // Act - Store multiple answers
         answerService.storeAnswer(userId1, testId1, questionId1, selectedOption1);
         answerService.storeAnswer(userId2, testId2, questionId2, selectedOption2);
 
         // Act - Retrieve all stored answers
-        Map<String, String> allAnswers = AnswerService.getAllAnswers();
+        Map<String, Map<String, String>> allAnswers = AnswerService.getAllAnswers();
 
         // Assert - Verify that the answers are retrieved correctly
         assertEquals(4, allAnswers.size());
@@ -88,7 +94,7 @@ class AnswerServiceTest {
         Long nonExistentQuestionId = 9999L;
 
         // Act - Attempt to retrieve a non-existent answer
-        String answer = AnswerService.getAnswer(nonExistentUserId, nonExistentTestId, nonExistentQuestionId);
+        Map<String, String> answer = AnswerService.getAnswer(nonExistentUserId, nonExistentTestId, nonExistentQuestionId);
 
         // Assert - Verify that the answer is null
         assertNull(answer);
