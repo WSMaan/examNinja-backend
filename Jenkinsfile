@@ -10,7 +10,7 @@ pipeline {
         BACKEND_DIR = 'backend'
         FAILURE_REASON = ''  // To capture failure reason
         S3_BUCKET_NAME = 'examninja'
-        REPORTS_DIR = "target/surefire-reports"  // Update this if using different reports (e.g., Allure)
+        REPORTS_DIR = "target/site"  // Surefire reports directory
     }
     stages {
         stage('Clone Repositories') {
@@ -36,6 +36,22 @@ pipeline {
             }
         }
 
+        stage('Generate Surefire Reports') {
+            steps {
+                dir(BACKEND_DIR) {
+                    // Generate Surefire HTML reports
+                    sh 'mvn surefire-report:report'
+                }
+            }
+            post {
+                failure {
+                    script {
+                        env.FAILURE_REASON = 'report-generation'
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 dir(BACKEND_DIR) {
@@ -56,7 +72,7 @@ pipeline {
                 dir(BACKEND_DIR) {
                     sh '''
                     if [ -d ${REPORTS_DIR} ]; then
-                        echo "Uploading reports to S3 bucket: ${S3_BUCKET_NAME}"
+                        echo "Uploading Surefire HTML reports to S3 bucket: ${S3_BUCKET_NAME}"
                         aws s3 sync ${REPORTS_DIR} s3://${S3_BUCKET_NAME}/jenkins-reports/backend --region ${AWS_REGION}
                     else
                         echo "No reports found to upload."
