@@ -35,6 +35,7 @@ public class ExamResultService {
     private ExamResultRepository examResultRepository;
 
     private static final int pass_Marks_Cut_Off = 65;
+    private static final String SELECTEDOPTIONFROMMAP = "label";
 
     public ExamResultResponse processSubmittedTest(ExamSubmissionRequest request, Long userId) {
         Long testId = request.getTestId();
@@ -116,7 +117,7 @@ public class ExamResultService {
             Long questionId = Long.parseLong(keyParts[2]);
 
             if (storedUserId.equals(userId) && storedTestId.equals(testId)) {
-                String selectedAnswer = value.get("label");
+                String selectedAnswer = value.get(SELECTEDOPTIONFROMMAP);
                 studentTestAnswers.put(questionId, selectedAnswer);
                 System.out.println(selectedAnswer);
             }
