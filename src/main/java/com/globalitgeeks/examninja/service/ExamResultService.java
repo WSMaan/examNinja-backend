@@ -119,7 +119,6 @@ public class ExamResultService {
             if (storedUserId.equals(userId) && storedTestId.equals(testId)) {
                 String selectedAnswer = value.get(SELECTEDOPTIONFROMMAP);
                 studentTestAnswers.put(questionId, selectedAnswer);
-                System.out.println(selectedAnswer);
             }
         });
 
