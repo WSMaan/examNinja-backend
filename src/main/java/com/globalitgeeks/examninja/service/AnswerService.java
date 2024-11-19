@@ -7,9 +7,9 @@ import java.util.Map;
 @Service
 public class AnswerService {
 
-    private static Map<String, String> answerMap = new HashMap<>();
+    public static Map<String, Map<String, String>> answerMap = new HashMap<>();
     // Method to store answer selected by user in the Hash Map
-    public void storeAnswer(Long userId, Long testId, Long questionId, String selectedOption) {
+    public void storeAnswer(Long userId, Long testId, Long questionId, Map <String, String> selectedOption) {
         String key = generateKey(userId, testId, questionId);
         if (answerMap.containsKey(key)) {
             //Updates the existing answer
@@ -26,12 +26,12 @@ public class AnswerService {
         return userId + "-" +testId + "-" + questionId;
     }
 
-    public static Map<String, String> getAllAnswers() {
+    public static Map<String, Map<String, String>> getAllAnswers() {
         // Return a copy of the map
         return new HashMap<>(answerMap);
     }
 
-    public static String getAnswer(Long userId, Long testId, Long questionId) {
+    public static Map<String, String> getAnswer(Long userId, Long testId, Long questionId) {
         return answerMap.get(generateKey(userId, testId, questionId));
     }
 

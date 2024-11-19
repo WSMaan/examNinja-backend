@@ -1,7 +1,6 @@
 package com.globalitgeeks.examninja.controller;
 
 import com.globalitgeeks.examninja.dto.*;
-import com.globalitgeeks.examninja.model.Question;
 import com.globalitgeeks.examninja.security.JwtUtil;
 import com.globalitgeeks.examninja.service.ExamResultService;
 import com.globalitgeeks.examninja.service.QuestionService;
@@ -9,7 +8,6 @@ import com.globalitgeeks.examninja.service.AnswerService;
 import com.globalitgeeks.examninja.service.TestService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tests")
-public class TestController {
+public class ExamController {
 
     @Autowired
     private QuestionService questionService;
@@ -64,7 +62,7 @@ public class TestController {
         Long extractedUserId = jwtUtil.extractUserId(token.replace("Bearer ", "")); // Extract user ID from token
         Long testId = studentAnswerDTO.getTestId();
         Long questionId = studentAnswerDTO.getQuestionId();
-        String selectedOption = studentAnswerDTO.getSelectedOption().getLabel();
+        Map<String, String> selectedOption = studentAnswerDTO.getSelectedOption();
 
         answerService.storeAnswer(extractedUserId, testId, questionId, selectedOption);
 
@@ -79,7 +77,7 @@ public class TestController {
             @RequestHeader("Authorization") String token) {
 
 
-        Long userId = jwtUtil.extractUserId(token);
+        Long userId = jwtUtil.extractUserId(token.replace("Bearer ", ""));
 
 
         ExamResultResponse response = examResultService.processSubmittedTest(request, userId);

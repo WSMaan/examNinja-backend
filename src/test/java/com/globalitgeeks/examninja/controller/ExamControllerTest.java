@@ -1,10 +1,9 @@
 package com.globalitgeeks.examninja.controller;
 
-import com.globalitgeeks.examninja.dto.ApiResponse;
-import com.globalitgeeks.examninja.dto.StoreAnswer;
-import com.globalitgeeks.examninja.dto.TestDto;
+import com.globalitgeeks.examninja.dto.*;
 import com.globalitgeeks.examninja.security.JwtUtil;
 import com.globalitgeeks.examninja.service.AnswerService;
+import com.globalitgeeks.examninja.service.ExamResultService;
 import com.globalitgeeks.examninja.service.QuestionService;
 import com.globalitgeeks.examninja.service.TestService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,10 +23,10 @@ import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
-class TestControllerTest {
+class ExamControllerTest {
 
     @InjectMocks
-    private TestController testController;
+    private ExamController examController;
     @Mock
     private JwtUtil jwtUtil;
 
@@ -38,6 +36,9 @@ class TestControllerTest {
     private TestService testService;
     @Mock
     private AnswerService answerService;
+
+    @Mock
+    private ExamResultService examResultService;
 
     @BeforeEach
     void setUp() {
@@ -64,7 +65,7 @@ class TestControllerTest {
         when(questionService.getQuestionByTestId(testId, page, 1, mockUserId)).thenReturn(mockResponse);
 
         // Call the method with the token in the request header
-        ResponseEntity<Map<String, Object>> responseEntity = testController.getQuestionByTestId(testId, page, token);
+        ResponseEntity<Map<String, Object>> responseEntity = examController.getQuestionByTestId(testId, page, token);
 
         // Assertions
         assertEquals(200, responseEntity.getStatusCodeValue());
@@ -87,7 +88,7 @@ class TestControllerTest {
 
 
         // Act: Call the controller method
-        ResponseEntity<List<TestDto>> response = testController.getTestsForUser(token);
+        ResponseEntity<List<TestDto>> response = examController.getTestsForUser(token);
 
         // Assert: Verify the results
         assertEquals(200, response.getStatusCodeValue()); // Verify status code is 200 OK
@@ -105,13 +106,54 @@ class TestControllerTest {
 
         // Act & Assert - Verify exception handling
         assertThrows(RuntimeException.class, () -> {
-            testController.storeAnswer(storeAnswerDTO, invalidToken);
+            examController.storeAnswer(storeAnswerDTO, invalidToken);
         });
 
         // Verify that the extractUserId method was called
         verify(jwtUtil, times(1)).extractUserId("invalid-jwt-token");
 
         // Verify that storeAnswer was never called due to invalid token
-        verify(answerService, never()).storeAnswer(anyLong(), anyLong(), anyLong(), anyString());
+        verify(answerService, never()).storeAnswer(anyLong(), anyLong(), anyLong(), anyMap());
+    }
+
+    @Test
+    void testSubmitTest() {
+        // Given
+        String token = "Bearer mock-jwt-token";
+        ExamSubmissionRequest mockRequest = new ExamSubmissionRequest();  // Populate with required fields if needed
+        ExamResultResponse mockResponse = new ExamResultResponse();  // Example response
+
+        Long mockUserId = 1L;  // Mock user ID
+
+        // Mock the JWT utility to return a valid user ID
+        when(jwtUtil.extractUserId("mock-jwt-token")).thenReturn(mockUserId);
+
+        // Mock the ExamResultService to return a predefined response when processing the test submission
+        when(examResultService.processSubmittedTest(mockRequest, mockUserId)).thenReturn(mockResponse);
+
+        // Act
+        ResponseEntity<ExamResultResponse> responseEntity = examController.submitTest(mockRequest, token);
+
+        // Assert
+        assertEquals(200, responseEntity.getStatusCodeValue());  // Verify status code
+        assertEquals(mockResponse, responseEntity.getBody());     // Verify the body of the response
+    }
+
+    @Test
+    void testSubmitTest_InvalidToken() {
+        // Given
+        String invalidToken = "Bearer invalid-jwt-token";
+        ExamSubmissionRequest mockRequest = new ExamSubmissionRequest();  // Populate with required fields if needed
+
+        // Mocking the JwtUtil to throw an exception for an invalid token
+        when(jwtUtil.extractUserId("invalid-jwt-token")).thenThrow(new RuntimeException("Invalid token"));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            examController.submitTest(mockRequest, invalidToken);  // This should throw an exception
+        });
+
+        // Verify that the JwtUtil's extractUserId method was called once
+        verify(jwtUtil, times(1)).extractUserId("invalid-jwt-token");
     }
 }
