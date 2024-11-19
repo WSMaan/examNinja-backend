@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,10 +23,10 @@ import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
-class TestControllerTest {
+class ExamControllerTest {
 
     @InjectMocks
-    private TestController testController;
+    private ExamController examController;
     @Mock
     private JwtUtil jwtUtil;
 
@@ -66,7 +65,7 @@ class TestControllerTest {
         when(questionService.getQuestionByTestId(testId, page, 1, mockUserId)).thenReturn(mockResponse);
 
         // Call the method with the token in the request header
-        ResponseEntity<Map<String, Object>> responseEntity = testController.getQuestionByTestId(testId, page, token);
+        ResponseEntity<Map<String, Object>> responseEntity = examController.getQuestionByTestId(testId, page, token);
 
         // Assertions
         assertEquals(200, responseEntity.getStatusCodeValue());
@@ -89,7 +88,7 @@ class TestControllerTest {
 
 
         // Act: Call the controller method
-        ResponseEntity<List<TestDto>> response = testController.getTestsForUser(token);
+        ResponseEntity<List<TestDto>> response = examController.getTestsForUser(token);
 
         // Assert: Verify the results
         assertEquals(200, response.getStatusCodeValue()); // Verify status code is 200 OK
@@ -107,7 +106,7 @@ class TestControllerTest {
 
         // Act & Assert - Verify exception handling
         assertThrows(RuntimeException.class, () -> {
-            testController.storeAnswer(storeAnswerDTO, invalidToken);
+            examController.storeAnswer(storeAnswerDTO, invalidToken);
         });
 
         // Verify that the extractUserId method was called
@@ -133,7 +132,7 @@ class TestControllerTest {
         when(examResultService.processSubmittedTest(mockRequest, mockUserId)).thenReturn(mockResponse);
 
         // Act
-        ResponseEntity<ExamResultResponse> responseEntity = testController.submitTest(mockRequest, token);
+        ResponseEntity<ExamResultResponse> responseEntity = examController.submitTest(mockRequest, token);
 
         // Assert
         assertEquals(200, responseEntity.getStatusCodeValue());  // Verify status code
@@ -151,7 +150,7 @@ class TestControllerTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> {
-            testController.submitTest(mockRequest, invalidToken);  // This should throw an exception
+            examController.submitTest(mockRequest, invalidToken);  // This should throw an exception
         });
 
         // Verify that the JwtUtil's extractUserId method was called once
