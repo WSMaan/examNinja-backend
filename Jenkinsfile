@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCOUNT_ID = "545009823648"
+        AWS_ACCOUNT_ID = "545009823658"
         AWS_REGION = "eu-north-1"
         ECR_REPOSITORY_NAME = "automationrepos3"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
