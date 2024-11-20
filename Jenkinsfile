@@ -1,13 +1,13 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCOUNT_ID = "583187964056"
-        AWS_REGION = "us-east-2"
-        ECR_REPOSITORY_NAME = "examninja"
+        AWS_ACCOUNT_ID = "545009823648"
+        AWS_REGION = "eu-north-1"
+        ECR_REPOSITORY_NAME = "automationrepos3"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         BACKEND_DIR = 'backend'
         FAILURE_REASON = ''  // To capture failure reason
-        S3_BUCKET_NAME = 'examninja'
+        S3_BUCKET_NAME = 'automationrepos3'
         REPORTS_DIR = "target/site"  // Surefire reports directory
     }
     stages {
