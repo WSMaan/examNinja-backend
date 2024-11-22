@@ -1,62 +1,76 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: mysql-deployment
   labels:
-    app: backend
+    app: mysql
 spec:
-  replicas: 3  # Number of backend instances
+  replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: mysql
   template:
     metadata:
       labels:
-        app: backend
+        app: mysql
     spec:
       containers:
-      - name: backend
-        image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:backend_latest
+      - name: mysql-container
+        image: mysql:8.0
         ports:
-        - containerPort: 8081
+        - containerPort: 3306
         env:
-        - name: SPRING_DATASOURCE_URL
-          value: "jdbc:mysql://mysql-deployment:3306/exam_ninja"
-        - name: SPRING_DATASOURCE_USERNAME
-          value: "root"
-        - name: SPRING_DATASOURCE_PASSWORD
-          value: "root@123"
-        - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-          value: "com.mysql.cj.jdbc.Driver"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        readinessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8081
-          initialDelaySeconds: 10
-          periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8081
-          initialDelaySeconds: 30
-          periodSeconds: 10
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root@123"  # Password matches the backend deployment
+        - name: MYSQL_DATABASE
+          value: "exam"  # Database matches the backend deployment
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-persistent-storage
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: gp2  # Use a dynamic storage class for AWS EBS
+  awsElasticBlockStore:
+    volumeID: <your-ebs-volume-id>  # Replace with your EBS volume ID
+    fsType: ext4
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2  # Matches the PV storage class
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-service
+  name: mysql-service
 spec:
   selector:
-    app: backend
+    app: mysql
   ports:
     - protocol: TCP
-      port: 8081
-      targetPort: 8081
-  type: LoadBalancer
+      port: 3306
+      targetPort: 3306
+  clusterIP: None  # Headless service (adjust based on requirements)
