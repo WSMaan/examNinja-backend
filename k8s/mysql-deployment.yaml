@@ -21,9 +21,9 @@ spec:
         - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "root@123"  # Password matches the backend deployment
+          value: "root@123"  # Ensure this matches the backend configuration
         - name: MYSQL_DATABASE
-          value: "exam"  # Database matches the backend deployment
+          value: "exam"  # Ensure this matches the database name used by the backend
         volumeMounts:
         - mountPath: /var/lib/mysql
           name: mysql-persistent-storage
